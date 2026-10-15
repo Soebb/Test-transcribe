@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_subtitle">完全离线、私密、快速。</string>
+
+    <string name="section_ime">备选方案：语音键盘</string>
+    <string name="desc_ime">想要专用键盘？启用 Aura Transcribe 键盘，然后在需要语音输入时从键盘切换器切换到它。</string>
+    <string name="btn_ime_settings">打开键盘设置</string>
+
+    <string name="section_subs">实时字幕</string>
+    <string name="desc_subs">为设备上播放的任何音频显示字幕。启动后，选择“分享整个屏幕”以获得最佳效果。</string>
+    <string name="btn_subs_start">开始实时字幕</string>
+    <string name="btn_subs_advanced">跳过权限对话框（高级）</string>
+    <string name="subs_advanced_title">跳过截屏确认对话框</string>
+    <string name="subs_advanced_body">Android 通常每次启动字幕时都会显示“开始录制或投射？”对话框。高级用户可以通过 adb 预先授权一次，之后字幕即可即时启动：\n\n1. 启用开发者选项和 USB 调试，将设备连接到装有 adb 的电脑。\n\n2. 运行：\n\n%1$s\n\n就这样：该设置在重启后仍然有效，之后可以重新关闭 USB 调试。应用本身没有任何变化：Android 只是自动批准该对话框。\n\n要撤销：\n\n%2$s\n\n注意：这依赖于未公开的 Android 行为（PROJECT_MEDIA 应用操作）。在某些设备（如部分小米/三星系统）上可能无效或被系统重置；常规对话框始终是备用方案。</string>
+    <string name="subs_advanced_copy">复制命令</string>
+    <string name="subs_advanced_copied">命令已复制</string>
+
+    <string name="status_checking">正在检查资源…</string>
+    <string name="status_ready">就绪</string>
+    <string name="section_settings">设置</string>
+    <string name="setting_auto_record">自动开始录音</string>
+    <string name="setting_auto_record_desc">打开键盘时自动开始录音</string>
+
+    <string name="setting_select_transcription">选中转写文本</string>
+    <string name="setting_select_transcription_desc">高亮转写文本，以便一键退格删除</string>
+
+    <string name="setting_pause_audio">暂停音频</string>
+    <string name="setting_pause_audio_desc">录音时暂停音频</string>
+
+    <string name="setting_record_background">后台录音</string>
+    <string name="setting_record_background_desc">隐藏语音键盘时继续录音；返回时插入文本</string>
+
+    <string name="setting_auto_stop">静音后自动停止</string>
+    <string name="setting_auto_stop_desc">停止说话约 2 秒后自动结束语音输入弹窗</string>
+
+    <string name="setting_subtitle_lines">字幕行数</string>
+    <string name="setting_subtitle_lines_desc">实时字幕显示多少行；旧文本会自动滚出</string>
+    <string name="subtitle_lines_2">2 行</string>
+    <string name="subtitle_lines_4">4 行</string>
+    <string name="subtitle_lines_all">全部</string>
+
+    <string name="setting_subtitle_translation">字幕翻译</string>
+    <string name="setting_subtitle_translation_desc">识别后翻译实时字幕。“自动（原语言）”保留说话的语言。选择固定语言会在首次使用时下载小型语言包（Google Play 服务；翻译本身在设备端完成，之后可离线使用）。</string>
+    <string name="subtitle_translation_auto">自动（原语言）</string>
+    <string name="live_subs_title">实时字幕</string>
+    <string name="live_subs_desc">选择字幕语言，然后开始为设备音频生成字幕。</string>
+    <string name="subtitle_translation_saved">字幕翻译已保存</string>
+    <string name="subs_translation_unavailable">此设备不支持字幕翻译；将显示原语言。</string>
+
+    <!-- Speech model management (transcribe.cpp GGUF backend) -->
+    <string name="models_title">语音模型</string>
+    <string name="models_section">语音模型</string>
+    <string name="models_active_section">当前模型</string>
+    <string name="models_desc">内置模型开箱即用。您也可以导入任何已下载的 transcribe.cpp GGUF 模型。应用始终完全离线；下载在浏览器中进行。语音键盘在重启后采用新模型。</string>
+    <string name="models_builtin_sub">应用内置 · 40 种语言区域 · 流式 · 自动检测</string>
+    <string name="models_loading">正在加载模型…</string>
+    <string name="models_import">导入模型文件 (.gguf)</string>
+    <string name="models_importing">正在导入 %1$s…</string>
+    <string name="models_import_done">已导入 %1$s</string>
+    <string name="models_import_failed">导入失败：无法复制文件。</string>
+    <string name="models_import_no_space">存储空间不足，无法导入此模型。</string>
+    <string name="models_import_bad_title">不是 GGUF 模型</string>
+    <string name="models_import_bad_body">请选择 transcribe.cpp 的 .gguf 模型文件。点击“模型下载地址”查看下载链接。</string>
+    <string name="models_links">模型下载地址</string>
+    <string name="models_links_title">模型下载（在浏览器中打开）</string>
+    <string name="models_recommended_packs">推荐模型包</string>
+    <string name="models_recommended_packs_title">推荐模型包</string>
+    <string name="model_desc_parakeet110m">仅英文，小巧快速</string>
+    <string name="model_desc_canary_180m">NVIDIA Canary 180M Flash 多语言 ASR——超快、轻量（210 MB）</string>
+    <string name="model_desc_sensevoice">英文、中文、粤语、日文、韩文；快速</string>
+    <string name="model_desc_whisper_small">99 种语言，紧凑；可译为英文</string>
+    <string name="model_desc_nemotron">40 种语言（含中文、日文、韩文、阿拉伯文、印地文）；带标点</string>
+    <string name="model_desc_parakeet_v3_q8">25 种欧洲语言，高精度</string>
+    <string name="model_desc_whisper_turbo">99 种语言，本列表中最准确；不可翻译</string>
+    <string name="model_desc_browse">浏览全部 transcribe.cpp 模型</string>
+    <string name="pack_ultralight_title">⚡ 超轻离线包 (&lt;500 MB)</string>
+    <string name="pack_ultralight_desc" formatted="false">Canary 180M / Parakeet 110M，超快、低内存、100% 离线转写。</string>
+    <string name="pack_pro_title">🏆 专业集成包（推荐）</string>
+    <string name="pack_pro_desc">Nemotron 3.5 ASR 0.6B（内置）+ AI Fix 云端，精度最高，支持专业术语和智能排版。</string>
+    <string name="pack_multilingual_title">🚀 Whisper 扩展包</string>
+    <string name="pack_multilingual_desc">Whisper Large-v3-Turbo，适用于嘈杂音频、重口音和多语言翻译。</string>
+    <string name="models_no_browser">未找到可打开链接的浏览器。</string>
+    <string name="models_delete">删除模型</string>
+    <string name="models_delete_confirm">从应用存储中删除 %1$s？</string>
+    <string name="models_language_section">语言</string>
+    <string name="models_language_desc">传递给模型的语言。“自动（设备语言）”默认使用手机当前语言。如果转写语言或文字不对，请明确选择您的语言。当前模型不支持的语言会被忽略。</string>
+    <string name="models_language_auto">自动（检测语言）</string>
+    <string name="models_language_saved">语言已保存</string>
+    <string name="models_translate">译为英文</string>
+    <string name="models_translate_desc">适用于支持的模型（如 Whisper）：任何语言的语音都会变成英文文本，包括实时字幕。其他模型会忽略此项。</string>
+    <string name="btn_models">管理语音模型</string>
+    <string name="models_threads_section">CPU 线程数</string>
+    <string name="models_threads_desc">转写使用的线程数。“自动”根据本机 CPU 选择。如果转写慢，可以尝试不同数值；线程越多不一定越快。</string>
+    <string name="models_threads_auto">自动</string>
+    <string name="models_stream_latency_section">流式延迟</string>
+    <string name="models_stream_latency_desc">流式模型（Nemotron）的分块大小。分块越小，说话时越早看到实时中间结果，但精度略有损失。“均衡”为模型默认值。</string>
+    <string name="models_stream_latency_balanced">均衡（1.12 秒）</string>
+    <string name="models_stream_latency_fast">快（560 毫秒）</string>
+    <string name="models_stream_latency_faster">更快（160 毫秒）</string>
+    <string name="models_stream_latency_lowest">最低（80 毫秒）</string>
+    <string name="models_backend_section">推理后端</string>
+    <string name="models_backend_desc">推理在 CPU 上运行，使用 ARM NEON 点积和 fp16 加速。这是引擎实现的唯一后端，也是此处提供的唯一选项。NPU（NNAPI）和 GPU（Vulkan）加速尚未实现。</string>
+    <string name="models_backend_cpu">CPU（ARM NEON + 点积 + fp16）</string>
+
+    <string name="section_benchmark">基准测试</string>
+    <string name="desc_benchmark">使用内置英文测试录音（11 秒）测量当前模型在本机上的转写速度。</string>
+    <string name="btn_benchmark">运行基准测试</string>
+    <string name="bench_running">正在运行基准测试…</string>
+    <string name="bench_result">%1$s 秒音频用时 %2$s 秒：%3$s 倍实时</string>
+    <string name="bench_error">基准测试失败：%1$s</string>
+
+    <string name="section_appearance">外观</string>
+    <string name="theme_system">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+
+    <!-- Primary voice-input flow: apps fire RECOGNIZE_SPEECH and RecognizeActivity handles it. -->
+    <string name="section_voice">语音输入</string>
+    <string name="voice_status_ready">就绪。在任何应用中，点击受支持键盘上的麦克风，说出的话就会输入到文本框中。</string>
+    <string name="voice_status_need_mic">语音输入需要先获得麦克风权限。</string>
+    <string name="voice_status_almost">就快好了。点击键盘麦克风时，选择“Aura Transcribe”并选择“始终”。点击下面的“试用语音输入”立即设置。</string>
+    <string name="btn_voice_try">试用语音输入</string>
+    <string name="btn_voice_grant">授予麦克风权限</string>
+    <string name="btn_voice_help">设置帮助</string>
+
+    <string name="voice_test_ok">成功！听到：%1$s</string>
+    <string name="voice_test_empty">可用，但未检测到语音。</string>
+    <string name="voice_test_failed">无法在此设备上启动语音输入。</string>
+
+    <string name="voice_help_title">语音输入设置</string>
+    <string name="voice_help_body">如何使用\n• 打开任意应用，点击受支持键盘/应用上的麦克风。会滑出一个小面板，说话，点击停止，文本即被插入。（在设置中启用“静音后自动停止”，可让它自动停止。）\n\n哪些键盘会打开语音面板\n• Microsoft SwiftKey（非开源）和网页语音搜索会直接打开面板。\n• AnySoftKeyboard 是打开面板的开源方式：只要系统未启用语音键盘，它的麦克风键就会打开面板。\n\n其他开源键盘\n• HeliBoard、FlorisBoard、OpenBoard、Fossify Keyboard 和 Unexpected Keyboard 不会打开面板：它们的麦克风键会切换到“Aura Transcribe”键盘。请先启用它（见“备选方案：语音键盘”），在那里说话，再用键盘切换键返回。FUTO Keyboard 自带语音输入。\n• Gboard 只用 Google 自家语音输入，完全无法使用本应用。\n\n如果打开的是 SwiftKey 自家语音输入\n• 设置 → 丰富输入 → 关闭“多模态语音输入”。\n• 然后再次点击麦克风，选择“Aura Transcribe”。\n\n如果 Android 询问使用哪个应用\n• 选择“Aura Transcribe”，点击“始终”。\n\n如果总是打开另一个应用\n• 打开设置 → 应用 → 该应用 → “默认打开” → 清除默认设置，然后重试。</string>
+    <!-- AI post-processing (fork addition) -->
+    <string name="pp_card_title">AI 后期处理</string>
+    <string name="pp_card_subtitle">用兼容 OpenAI 的 LLM 润色转写结果。</string>
+    <string name="pp_card_button">后期处理设置</string>
+    <string name="pp_enable">启用 AI 后期处理</string>
+    <string name="pp_provider">服务商</string>
+    <string name="pp_api_url">基础 URL（兼容 OpenAI）</string>
+    <string name="pp_api_key">API 密钥</string>
+    <string name="pp_api_key_required">请输入 API 密钥以使用后期处理。</string>
+    <string name="pp_api_key_save_failed">无法安全保存 API 密钥，请重试。</string>
+    <string name="pp_model">模型名称</string>
+    <string name="pp_refresh_models">获取可用模型</string>
+    <string name="pp_models_loaded">模型已加载——点击输入框选择</string>
+    <string name="pp_models_error">无法获取模型</string>
+    <string name="pp_prompt">系统提示词</string>
+    <string name="pp_save">保存</string>
+    <string name="pp_saved">设置已保存</string>
+    <string name="pp_test_connection">测试后期处理</string>
+    <string name="pp_test_success">后期处理工作正常</string>
+    <string name="pp_test_error">后期处理测试失败：%1$s</string>
+    <string name="pp_preset">后期处理预设 / 风格</string>
+    <string name="pp_preset_clean">自然 / 简洁（默认）</string>
+    <string name="pp_preset_formal">专业 / 正式</string>
+    <string name="pp_preset_casual">随意 / 聊天</string>
+    <string name="pp_preset_verbatim">逐字 / 原文（不用 LLM）</string>
+    <string name="pp_local_model_title">SuperWhisper S1-mini (0.6B)</string>
+    <string name="pp_local_model_installed">已安装（%1$s）</string>
+    <string name="pp_local_model_not_installed">模型未安装。下载后即可使用设备端后期处理。</string>
+    <string name="pp_local_unavailable">此版本不支持设备端 AI 润色：需要应用尚未内置的文本生成引擎。请选择云端服务商，或关闭 AI 修复。</string>
+    <string name="pp_download_s1">下载 S1-mini GGUF</string>
+    <string name="pp_downloading_s1">正在下载 S1-mini GGUF…</string>
+    <string name="pp_download_s1_done">S1-mini GGUF 下载成功</string>
+    <string name="pp_download_s1_error">下载失败：%1$s</string>
+    <string name="pp_not_configured_prompt">AI 后期处理尚未配置。请在设置中添加 API 密钥或安装本地 S1 模型。</string>
+
+    <!-- Custom words dictionary (fork addition): phonetic post-correction -->
+    <string name="cw_card_title">自定义词语</string>
+    <string name="cw_card_subtitle">替换听错的词语，纠正与您的术语发音相近的识别错误。适用于所有模型，完全离线。</string>
+    <string name="cw_card_button">编辑自定义词语</string>
+    <string name="cw_title">自定义词语</string>
+    <string name="cw_subtitle">列出希望被正确识别的词语。转写文本中发音相近的词会被替换为您的术语。适用于任何语音模型；完全离线。</string>
+    <string name="cw_hint">词语，每行一个</string>
+    <string name="cw_helper">以 # 开头的行是注释。例如：北京，上海，TensorFlow</string>
+    <string name="cw_save">保存</string>
+    <string name="cw_saved">已保存</string>
+    <string name="cw_save_error">保存词典失败</string>
+
+    <!-- Debug build: model is downloaded on first run to keep APK small -->
+    <string name="debug_model_title">需要调试模型</string>
+    <string name="debug_model_body">此调试版本不含语音模型。现在下载（约 %1$s）吗？建议使用 Wi-Fi。</string>
+    <string name="debug_model_download">下载</string>
+    <string name="debug_model_cancel">取消</string>
+    <string name="debug_model_downloading">正在下载模型…</string>
+    <string name="debug_model_downloaded">模型已下载</string>
+    <string name="debug_model_error">下载失败：%1$s</string>
+    <string name="debug_model_retry">重试</string>
+    <string name="debug_model_cancelled">模型下载已取消</string>
+    <string name="debug_model_notification_denied">通知权限被拒绝；下载将在没有进度通知的情况下继续。</string>
+    <string name="debug_model_no_space">存储空间不足，无法下载模型</string>
+
+    <!-- P2.4 (2026-08-03): migrated hardcoded UI strings from Java/layouts -->
+
+    <!-- Voice keyboard (IME) -->
+    <string name="ime_tap_to_record">点击录音</string>
+    <string name="ime_tap_to_stop">点击停止</string>
+    <string name="ime_listening">正在聆听…</string>
+    <string name="ime_processing">正在处理…</string>
+    <string name="ime_refining">正在润色…</string>
+    <string name="ime_ai_fix_toggle">AI 修复</string>
+    <string name="ime_no_mic_permission">无麦克风权限——请在应用中授予</string>
+    <string name="ime_open_app_for_permission">打开应用以授予权限</string>
+    <string name="ime_error_loading_keyboard">加载键盘出错：%1$s</string>
+    <string name="ime_cd_switch_keyboard">切换键盘</string>
+    <string name="ime_cd_space">空格</string>
+    <string name="ime_cd_enter">回车</string>
+    <string name="ime_cd_backspace">退格</string>
+
+    <!-- Voice popup (RecognizeActivity) -->
+    <string name="rec_mic_permission_required">需要麦克风权限。\n请在主应用中授予。</string>
+    <string name="rec_listening_tap_stop">正在聆听…（点击停止）</string>
+    <string name="rec_processing">正在处理…</string>
+    <string name="rec_refining">正在润色…</string>
+
+    <!-- File transcription (TranscribeFileActivity) -->
+    <string name="file_preparing">正在准备…</string>
+    <string name="file_loading_model">正在加载模型…</string>
+    <string name="file_decoding_audio">正在解码音频…</string>
+    <string name="file_transcribing">正在转写…</string>
+    <string name="file_refining">正在润色…</string>
+    <string name="file_copied">已复制到剪贴板</string>
+    <string name="file_copy_to_clipboard">复制到剪贴板</string>
+    <string name="file_error_no_audio_received">错误：未收到音频文件</string>
+    <string name="file_error_no_audio">错误：没有音频文件</string>
+    <string name="file_error_no_speech">错误：音频文件中未检测到语音</string>
+    <string name="file_error_format">错误：%1$s</string>
+
+    <!-- Live subtitles (permission toasts, overlay, notification) -->
+    <string name="subs_grant_overlay_permission">请授予“显示在其他应用上层”权限</string>
+    <string name="subs_enable_overlay_app_settings">请在应用设置中启用“显示在其他应用上层”</string>
+    <string name="subs_enable_overlay_settings">请在设置中启用悬浮窗权限</string>
+    <string name="subs_overlay_required">字幕需要悬浮窗权限</string>
+    <string name="subs_screen_capture_denied">截屏已被拒绝</string>
+    <string name="subs_waiting_for_audio">等待音频…</string>
+    <string name="subs_notification_active">实时字幕运行中</string>
+    <string name="subs_notification_recording">正在录制内部音频…</string>
+    <string name="subs_notification_stop">停止</string>
+
+    <!-- Shared -->
+    <string name="action_close">关闭</string>
+    <string name="action_cancel">取消</string>
+    <string name="ime_cancelled">转写已取消</string>
+    <string name="file_cancelled">转写已取消</string>
+
+    <!-- Debug model download errors (shown in the retry dialog) -->
+    <string name="debug_model_cannot_create_dir">无法创建模型目录</string>
+    <string name="debug_model_checksum_mismatch">校验和不匹配：应为 %1$s，实际为 %2$s</string>
+    <string name="debug_model_rename_failed">重命名已下载模型文件失败</string>
+    <string name="debug_model_http_error">HTTP %1$d</string>
+    <string name="debug_model_unknown_reason">未知</string>
+    <string name="bench_no_data_chunk">%1$s 中没有数据块</string>
+    <string name="file_error_too_long">音频文件超过 30 分钟，请转写更短的文件。</string>
+    <string name="file_error_too_large">音频文件过大，无法导入（最大 1 GB），请选择更小的文件。</string>
+
+    <!-- Floating overlay &amp; accessibility auto-paste (feature/floating-bubble-dictation) -->
+    <string name="floating_bubble_description">悬浮语音听写气泡</string>
+    <string name="floating_status_idle">点击气泡说话</string>
+    <string name="floating_status_listening">正在聆听…</string>
+    <string name="floating_status_transcribing">正在转写…</string>
+    <string name="floating_status_ready">就绪</string>
+    <string name="floating_action_cancel">取消</string>
+    <string name="floating_action_insert">插入</string>
+    <string name="floating_ai_fix_toggle">AI 修复</string>
+    <string name="floating_overlay_permission_title">需要悬浮窗权限</string>
+    <string name="floating_overlay_permission_msg">请授予“显示在其他应用上层”权限，以使用悬浮听写气泡。</string>
+    <string name="floating_service_name">悬浮听写覆盖层</string>
+    <string name="floating_service_description">用于快速语音听写和悬浮面板的气泡。</string>
+    <string name="floating_notification_stop">停止</string>
+    <string name="floating_stopped">悬浮听写已停止</string>
+    <string name="floating_need_mic_body">请授予麦克风权限以使用悬浮听写气泡。</string>
+    <string name="floating_start_failed_body">悬浮气泡启动失败，请检查悬浮窗和麦克风权限。</string>
+    <string name="accessibility_service_name">Aura Transcribe 听写插入</string>
+    <string name="accessibility_service_description">将您刚刚听写好的文本放入您正在编辑的文本框。它只读取该输入框，不存储任何内容，且为可选项：不开启时，听写结果会复制到剪贴板代替。</string>
+
+    <!-- Prominent in-app disclosure for the optional Accessibility service.
+         Shown as its own screen right before the user is sent to Android\'s
+         Accessibility settings (see AccessibilityDisclosureActivity). Google
+         Play requires this to be in-context and explicit, not buried in a
+         settings list or the store listing. -->
+    <string name="a11y_disclosure_title">自动插入听写文本吗？</string>
+    <string name="a11y_disclosure_intro">Aura Transcribe 可以把您听写的内容直接放入您在其他应用中使用的文本框。Android 仅在获得无障碍权限后才允许这样做，由您决定——在询问之前，这里会准确说明含义。</string>
+    <string name="a11y_disclosure_what_title">应用能看到什么</string>
+    <string name="a11y_disclosure_what_body">开启后，该服务可以读取当前光标所在的文本框，以便在其中插入听写内容并正确放置光标。它不会读取屏幕其他部分，不会浏览您的应用，也不会收集或存储输入框中的任何内容。</string>
+    <string name="a11y_disclosure_why_title">为什么是可选项</string>
+    <string name="a11y_disclosure_why_body">其他功能都不需要它。关闭无障碍权限时，听写结果会复制到剪贴板，由您自行粘贴——多一步操作，无需额外权限。</string>
+    <string name="a11y_disclosure_control_title">始终由您掌控</string>
+    <string name="a11y_disclosure_control_body">在您于 Android 设置中开启之前不会启用任何功能，您可以随时在那里撤销，或在 Aura Transcribe 内关闭悬浮气泡。</string>
+    <string name="a11y_disclosure_consent">前往无障碍设置</string>
+    <string name="a11y_disclosure_decline">暂不</string>
+    <string name="a11y_disclosure_no_settings">无法在此设备上打开 Android 设置。</string>
+    <string name="a11y_copied_to_clipboard">已复制到剪贴板——去需要的地方粘贴吧</string>
+    <string name="accessibility_paste_failed">粘贴文本失败</string>
+    <string name="floating_card_title">悬浮听写与无障碍</string>
+    <string name="floating_card_subtitle">Whisperflow 风格悬浮气泡，支持无障碍直接自动粘贴。</string>
+    <string name="btn_overlay_permission">悬浮窗权限</string>
+    <string name="btn_accessibility_permission">无障碍权限</string>
+
+    <!-- Audio input / microphone selection -->
+    <string name="section_audio_input">音频输入与麦克风</string>
+    <string name="desc_audio_input">为听写选择首选麦克风来源（蓝牙耳机、USB 麦克风或手机内置麦克风）。</string>
+    <string name="mic_mode_auto">自动（已连接时用蓝牙 / USB）</string>
+    <string name="mic_mode_bluetooth">优先蓝牙耳机麦克风</string>
+    <string name="mic_mode_builtin">仅手机内置麦克风</string>
+    <string name="mic_connected_label">已连接设备：</string>
+
+    <!-- Microphone Diagnostics &amp; Sound Test -->
+    <string name="mic_test_title">麦克风诊断与声音测试</string>
+    <string name="mic_test_desc">测试麦克风实时输入音量，确认当前录音设备。</string>
+    <string name="mic_test_btn_start">开始声音测试</string>
+    <string name="mic_test_btn_stop">停止声音测试</string>
+    <string name="mic_test_active_device">当前设备：%1$s</string>
+    <string name="mic_active_builtin">内置麦克风</string>
+
+    <!-- App UI language (auto = follow system) -->
+    <string name="setting_language">应用语言</string>
+    <string name="language_auto">自动（跟随系统）</string>
+</resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      This file no longer carries the app's UI palette. Material 3 supplies a
+      coherent light/dark tonal scheme through the theme, DynamicColors
+      personalises it from the wallpaper on Android 12+, and every surface
+      references a `?attr/color*` role instead of a literal (see styles.xml).
+
+      What remains here are the two cases Material 3 genuinely has no role for.
+    -->
+
+    <!-- Semantic "ready / granted" indicator. Material 3 ships error / primary /
+         secondary / tertiary roles only — there is no success role — so a
+         dedicated token is the correct model. Has a brighter night variant. -->
+    <color name="status_ok">#2E7D32</color>
+
+    <!-- Live-subtitle caption card. It is drawn over ARBITRARY third-party
+         content (system audio from any app, including bright video), so it must
+         not follow the app's own light/dark surface — a fixed translucent scrim
+         with light foreground guarantees legibility either way. -->
+    <color name="subs_scrim">#CC000000</color>
+    <color name="subs_scrim_fg">#FFFFFFFF</color>
+
+    <!-- Floating drag-to-dismiss drop target. Floats over third-party apps, so
+         (like the caption card) it keeps its own scrim in both themes rather
+         than switching between a light and a dark surface. -->
+    <color name="overlay_scrim">#CC1E1E24</color>
+    <color name="overlay_scrim_hover">#E6B3261E</color>
+    <color name="overlay_scrim_stroke">#40FFFFFF</color>
+    <color name="overlay_scrim_fg">#FFFFFFFF</color>
+</resources>

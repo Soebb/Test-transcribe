@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_subtitle">Totalmente sin conexión, privado y rápido.</string>
+
+    <string name="section_ime">Alternativa: teclado de voz</string>
+    <string name="desc_ime">¿Prefieres un teclado dedicado? Activa el teclado Aura Transcribe y cambia a él desde el selector de teclados cuando quieras la entrada de voz como teclado propio.</string>
+    <string name="btn_ime_settings">Abrir ajustes del teclado</string>
+
+    <string name="section_subs">Subtítulos en directo</string>
+    <string name="desc_subs">Muestra subtítulos para cualquier audio que se reproduzca en tu dispositivo. Tras iniciar, elige \'Compartir toda la pantalla\' para mejores resultados.</string>
+    <string name="btn_subs_start">Iniciar subtítulos en directo</string>
+    <string name="btn_subs_advanced">Omitir el cuadro de permiso (avanzado)</string>
+    <string name="subs_advanced_title">Omitir el cuadro de captura de pantalla</string>
+    <string name="subs_advanced_body">Android suele mostrar un cuadro «¿Iniciar grabación o transmisión?» cada vez que inician los subtítulos. Los usuarios avanzados pueden aprobarlo una vez mediante adb; luego los subtítulos inician al instante:\n\n1. Activa las opciones de desarrollador y la depuración USB, y conecta tu dispositivo a un ordenador con adb.\n\n2. Ejecuta:\n\n%1$s\n\nEso es todo: el ajuste sobrevive a los reinicios, y la depuración USB puede desactivarse después. La app en sí no cambia: Android solo concede el cuadro automáticamente.\n\nPara deshacerlo:\n\n%2$s\n\nNota: esto depende de un comportamiento no documentado de Android (el app-op PROJECT_MEDIA). En algunos dispositivos (p. ej. ciertas versiones de Xiaomi/Samsung) puede que no funcione o que el sistema lo restablezca; el cuadro normal es siempre la alternativa.</string>
+    <string name="subs_advanced_copy">Copiar comando</string>
+    <string name="subs_advanced_copied">Comando copiado</string>
+
+    <string name="status_checking">Comprobando datos…</string>
+    <string name="status_ready">Listo</string>
+    <string name="section_settings">Ajustes</string>
+    <string name="setting_auto_record">Iniciar grabación automáticamente</string>
+    <string name="setting_auto_record_desc">Comenzar a grabar automáticamente cuando se abre el teclado</string>
+
+    <string name="setting_select_transcription">Seleccionar transcripción</string>
+    <string name="setting_select_transcription_desc">Resaltar el texto transcrito para poder borrarlo con un solo retroceso</string>
+
+    <string name="setting_pause_audio">Pausar audio</string>
+    <string name="setting_pause_audio_desc">Pausar el audio mientras se graba</string>
+
+    <string name="setting_record_background">Grabar en segundo plano</string>
+    <string name="setting_record_background_desc">Seguir grabando cuando el teclado de voz está oculto; el texto se inserta al volver</string>
+
+    <string name="setting_auto_stop">Parada automática tras silencio</string>
+    <string name="setting_auto_stop_desc">Cerrar la ventana de entrada de voz automáticamente ~2 segundos después de dejar de hablar</string>
+
+    <string name="setting_subtitle_lines">Longitud de subtítulos</string>
+    <string name="setting_subtitle_lines_desc">Cuántas líneas muestran los subtítulos en directo; el texto antiguo se desplaza</string>
+    <string name="subtitle_lines_2">2 líneas</string>
+    <string name="subtitle_lines_4">4 líneas</string>
+    <string name="subtitle_lines_all">Todas</string>
+
+    <string name="setting_subtitle_translation">Traducción de subtítulos</string>
+    <string name="setting_subtitle_translation_desc">Traduce los subtítulos en directo tras reconocerlos. «Auto (idioma original)» conserva el idioma hablado. Al elegir un idioma fijo, la primera vez se descarga un paquete pequeño (Google Play Services; la traducción en sí es local y funciona sin conexión después).</string>
+    <string name="subtitle_translation_auto">Auto (idioma original)</string>
+    <string name="live_subs_title">Subtítulos en directo</string>
+    <string name="live_subs_desc">Elige el idioma de los subtítulos y, a continuación, inicia el subtitulado del audio de tu dispositivo.</string>
+    <string name="subtitle_translation_saved">Traducción de subtítulos guardada</string>
+    <string name="subs_translation_unavailable">La traducción de subtítulos no está disponible en este dispositivo; se muestra el idioma original.</string>
+
+    <string name="models_title">Modelos de voz</string>
+    <string name="models_section">Modelo de voz</string>
+    <string name="models_active_section">Modelo activo</string>
+    <string name="models_builtin_sub">Incluido en la app · 40 idiomas-regiones · streaming · detección automática</string>
+    <string name="models_recommended_packs">Packs recomendados</string>
+    <string name="models_recommended_packs_title">Packs de modelos recomendados</string>
+    <string name="model_desc_parakeet110m">Solo inglés, pequeño y rápido</string>
+    <string name="model_desc_canary_180m">NVIDIA Canary 180M Flash ASR multilingüe — ultrarrápido y ligero (210 MB)</string>
+    <string name="model_desc_sensevoice">Inglés, chino, cantonés, japonés, coreano; rápido</string>
+    <string name="model_desc_whisper_small">99 idiomas, compacto; traduce al inglés</string>
+    <string name="model_desc_nemotron">40 idiomas incl. chino, japonés, coreano, árabe, hindi; con puntuación</string>
+    <string name="model_desc_parakeet_v3_q8">25 idiomas europeos, alta precisión</string>
+    <string name="model_desc_whisper_turbo">99 idiomas, el más preciso de esta lista; no traduce</string>
+    <string name="model_desc_browse">Explorar todos los modelos de transcribe.cpp</string>
+    <string name="pack_ultralight_title">⚡ Pack Ultraligero Offline (&lt;500 MB)</string>
+    <string name="pack_ultralight_desc" formatted="false">Canary 180M / Parakeet 110M para transcripción 100% offline, ultrarrápida y de bajo consumo.</string>
+    <string name="pack_pro_title">🏆 Pack Pro Integrado (Recomendado)</string>
+    <string name="pack_pro_desc">Nemotron 3.5 ASR 0.6B (embebido) + AI Fix Cloud para máxima precisión, términos técnicos y formato inteligente.</string>
+    <string name="pack_multilingual_title">🚀 Pack Whisper Extendido</string>
+    <string name="pack_multilingual_desc">Whisper Large-v3-Turbo para audio ruidoso, acentos marcados y traducción multilingüe.</string>
+    <string name="models_desc">El modelo integrado funciona al instante. También puedes importar cualquier modelo GGUF de transcribe.cpp que hayas descargado. La app permanece totalmente sin conexión; las descargas se hacen en tu navegador. El teclado de voz aplica un cambio de modelo tras reiniciarse.</string>
+    <string name="models_loading">Cargando modelo…</string>
+    <string name="models_import">Importar archivo de modelo (.gguf)</string>
+    <string name="models_importing">Importando %1$s…</string>
+    <string name="models_import_done">%1$s importado</string>
+    <string name="models_import_failed">Error de importación: no se pudo copiar el archivo.</string>
+    <string name="models_import_no_space">No hay suficiente almacenamiento libre para importar este modelo.</string>
+    <string name="models_import_bad_title">No es un modelo GGUF</string>
+    <string name="models_import_bad_body">Selecciona un archivo de modelo .gguf para transcribe.cpp. Toca «Dónde conseguir modelos» para ver los enlaces de descarga.</string>
+    <string name="models_links">Dónde conseguir modelos</string>
+    <string name="models_links_title">Descargas de modelos (abrir en el navegador)</string>
+    <string name="models_no_browser">No se encontró un navegador para abrir el enlace.</string>
+    <string name="models_delete">Eliminar modelo</string>
+    <string name="models_delete_confirm">¿Eliminar %1$s del almacenamiento de la app?</string>
+    <string name="models_language_section">Idioma</string>
+    <string name="models_language_desc">El idioma que se pasa al modelo. «Automático» deja que el modelo decida. Si el habla se transcribe en el idioma o alfabeto equivocado, elige tu idioma explícitamente. Los idiomas que el modelo activo no admite se ignoran.</string>
+    <string name="models_language_auto">Auto (detectar idioma)</string>
+    <string name="models_language_saved">Idioma guardado</string>
+    <string name="models_translate">Traducir al inglés</string>
+    <string name="models_translate_desc">Para modelos compatibles (p. ej. Whisper): el habla en cualquier idioma se convierte en texto en inglés, también en los subtítulos en directo. Los demás modelos lo ignoran.</string>
+    <string name="btn_models">Gestionar modelos de voz</string>
+    <string name="models_threads_section">Hilos de CPU</string>
+    <string name="models_threads_desc">Hilos usados para la transcripción. «Automático» elige un valor según la CPU de este dispositivo. Si la transcripción es lenta, prueba otros valores; más hilos no siempre es más rápido.</string>
+    <string name="models_threads_auto">Automático</string>
+    <string name="models_stream_latency_section">Latencia de streaming</string>
+    <string name="models_stream_latency_desc">Tamaño de segmento para los modelos de streaming (Nemotron). Los segmentos más pequeños muestran los resultados parciales en vivo antes mientras hablas, a costa de un poco de precisión. «Equilibrado» es el valor por defecto del modelo.</string>
+    <string name="models_stream_latency_balanced">Equilibrado (1,12 s)</string>
+    <string name="models_stream_latency_fast">Rápido (560 ms)</string>
+    <string name="models_stream_latency_faster">Más rápido (160 ms)</string>
+    <string name="models_stream_latency_lowest">Mínimo (80 ms)</string>
+    <string name="models_backend_section">Motor de inferencia</string>
+    <string name="models_backend_desc">La inferencia se ejecuta en la CPU, con aceleración ARM NEON, dot-product y fp16. Es el único motor que implementa la aplicación, así que es la única opción disponible aquí. La aceleración por NPU (NNAPI) y GPU (Vulkan) no está implementada.</string>
+    <string name="models_backend_cpu">CPU (ARM NEON + dotprod + fp16)</string>
+
+    <string name="section_benchmark">Prueba de rendimiento</string>
+    <string name="desc_benchmark">Mide la velocidad de transcripción del modelo activo en este dispositivo usando una grabación de prueba en inglés integrada (11 s).</string>
+    <string name="btn_benchmark">Iniciar prueba</string>
+    <string name="bench_running">Ejecutando prueba…</string>
+    <string name="bench_result">%1$s s de audio en %2$s s: %3$s× tiempo real</string>
+    <string name="bench_error">La prueba falló: %1$s</string>
+
+    <string name="section_appearance">Apariencia</string>
+    <string name="theme_system">Predeterminado del sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+
+    <string name="section_voice">Entrada de voz</string>
+    <string name="voice_status_ready">Listo. En cualquier app, toca el micrófono de un teclado compatible y tu voz se escribe en el campo de texto.</string>
+    <string name="voice_status_need_mic">Se necesita acceso al micrófono para la entrada de voz.</string>
+    <string name="voice_status_almost">Casi listo. Cuando toques el micrófono de tu teclado, elige «Aura Transcribe» y luego «Siempre». Toca «Probar entrada de voz» abajo para configurarlo ahora.</string>
+    <string name="btn_voice_try">Probar entrada de voz</string>
+    <string name="btn_voice_grant">Conceder acceso al micrófono</string>
+    <string name="btn_voice_help">Ayuda de configuración</string>
+
+    <string name="voice_test_ok">¡Funciona! Se escuchó: %1$s</string>
+    <string name="voice_test_empty">Funciona, pero no se detectó ninguna voz.</string>
+    <string name="voice_test_failed">No se pudo iniciar la entrada de voz en este dispositivo.</string>
+
+    <string name="voice_help_title">Configuración de la entrada de voz</string>
+    <string name="voice_help_body">Cómo usarlo\n• Abre cualquier app y toca el micrófono de un teclado/una app compatible. Aparece un panel pequeño, hablas, tocas para detener y el texto se inserta. (Activa «Parada automática tras silencio» en los ajustes para que se detenga solo.)\n\nQué teclados abren el panel de voz\n• Microsoft SwiftKey (no es de código abierto) y la búsqueda por voz de los sitios web abren el panel directamente.\n• AnySoftKeyboard es la vía de código abierto al panel: su tecla de micrófono lo abre mientras no haya ningún teclado de voz activado en tu sistema.\n\nOtros teclados de código abierto\n• HeliBoard, FlorisBoard, OpenBoard, Fossify Keyboard y Unexpected Keyboard no abren el panel: su tecla de micrófono cambia al teclado «Aura Transcribe». Actívalo una vez (mira «Alternativa: teclado de voz»), habla allí y vuelve con su tecla de cambio de teclado. FUTO Keyboard trae su propia entrada de voz.\n• Gboard solo usa la entrada de voz de Google y no puede usar esta app en absoluto.\n\nSi se abre la entrada de voz propia de SwiftKey\n• Ajustes → Entrada enriquecida → desactiva «Entrada de voz multimodal».\n• Luego toca de nuevo el micrófono y elige «Aura Transcribe».\n\nSi Android pregunta qué app usar\n• Elige «Aura Transcribe» y toca «Siempre».\n\nSi siempre se abre otra app\n• Abre Ajustes → Aplicaciones → esa app → «Abrir de forma predeterminada» → Borrar valores predeterminados, e inténtalo de nuevo.</string>
+    <string name="pp_card_title">Posprocesado con IA</string>
+    <string name="pp_card_subtitle">Refina las transcripciones con un LLM compatible con OpenAI.</string>
+    <string name="pp_card_button">Ajustes de posprocesado</string>
+    <string name="pp_enable">Activar posprocesado con IA</string>
+    <string name="pp_provider">Proveedor</string>
+    <string name="pp_api_url">URL base (compatible con OpenAI)</string>
+    <string name="pp_api_key">Clave API</string>
+    <string name="pp_api_key_required">Introduce una clave API para usar el posprocesado.</string>
+    <string name="pp_api_key_save_failed">No se pudo guardar la clave API de forma segura. Inténtalo de nuevo.</string>
+    <string name="pp_model">Nombre del modelo</string>
+    <string name="pp_refresh_models">Obtener modelos disponibles</string>
+    <string name="pp_models_loaded">Modelos cargados — toca el campo para elegir uno</string>
+    <string name="pp_models_error">No se pudieron obtener los modelos</string>
+    <string name="pp_prompt">Prompt de sistema</string>
+    <string name="pp_save">Guardar</string>
+    <string name="pp_saved">Ajustes guardados</string>
+    <string name="pp_test_connection">Probar posprocesado</string>
+    <string name="pp_test_success">El posprocesado funciona</string>
+    <string name="pp_test_error">Falló la prueba de posprocesado: %1$s</string>
+    <string name="pp_preset">Estilo / Preset de pulido</string>
+    <string name="pp_preset_clean">Natural / Limpio (Por defecto)</string>
+    <string name="pp_preset_formal">Profesional / Formal</string>
+    <string name="pp_preset_casual">Casual / Chat</string>
+    <string name="pp_preset_verbatim">Literal / Sin pulir (Sin LLM)</string>
+    <string name="pp_local_model_title">En local: S1-mini (0.6B GGUF — Inglés)</string>
+    <string name="pp_local_model_installed">Modelo instalado (%1$s) — 100%% sin conexión (Inglés)</string>
+    <string name="pp_local_model_not_installed">Normalizador opcional en inglés (~380 MB de descarga)</string>
+    <string name="pp_local_unavailable">La limpieza con IA en el dispositivo no está disponible en esta compilación: necesitaría un motor de generación de texto que la app todavía no incluye. Elige un proveedor en la nube o desactiva el arreglo con IA.</string>
+    <string name="pp_download_s1">Descargar S1-mini GGUF</string>
+    <string name="pp_downloading_s1">Descargando S1-mini GGUF…</string>
+    <string name="pp_download_s1_done">S1-mini GGUF descargado correctamente</string>
+    <string name="pp_download_s1_error">Error al descargar: %1$s</string>
+    <string name="pp_not_configured_prompt">El postprocesado IA no está configurado. Añade una clave API o instala el modelo local S1 en ajustes.</string>
+
+    <!-- Diccionario de palabras personalizadas (añadido del fork): corrección fonética -->
+    <string name="cw_card_title">Palabras personalizadas</string>
+    <string name="cw_card_subtitle">Reemplaza palabras mal reconocidas que suenan como tus términos. Funciona con cualquier modelo, totalmente sin conexión.</string>
+    <string name="cw_card_button">Editar palabras personalizadas</string>
+    <string name="cw_title">Palabras personalizadas</string>
+    <string name="cw_subtitle">Lista las palabras que quieres que se reconozcan correctamente. Una palabra de la transcripción que suene como una de estas se reemplaza por tu término. Funciona con cualquier modelo de voz; totalmente sin conexión.</string>
+    <string name="cw_hint">Palabras, una por línea</string>
+    <string name="cw_helper">Las líneas que empiezan por # son comentarios. Ejemplo: Madrid, Barcelona, TensorFlow</string>
+    <string name="cw_save">Guardar</string>
+    <string name="cw_saved">Guardado</string>
+    <string name="cw_save_error">No se pudo guardar el diccionario</string>
+
+    <!-- Compilación de depuración: el modelo se descarga en el primer arranque para mantener el APK pequeño -->
+    <string name="debug_model_title">Modelo de depuración requerido</string>
+    <string name="debug_model_body">Esta compilación de depuración no incluye el modelo de voz. ¿Descargarlo ahora (~%1$s)? Se recomienda conexión Wi-Fi.</string>
+    <string name="debug_model_download">Descargar</string>
+    <string name="debug_model_cancel">Cancelar</string>
+    <string name="debug_model_downloading">Descargando modelo…</string>
+    <string name="debug_model_downloaded">Modelo descargado</string>
+    <string name="debug_model_error">Error de descarga: %1$s</string>
+    <string name="debug_model_retry">Reintentar</string>
+    <string name="debug_model_cancelled">Descarga del modelo cancelada</string>
+    <string name="debug_model_notification_denied">Se denegaron las notificaciones; la descarga continuará sin notificación de progreso.</string>
+    <string name="debug_model_no_space">No hay suficiente espacio libre para descargar el modelo</string>
+
+    <!-- P2.4 (2026-08-03): strings de UI migradas desde Java/layouts -->
+    <string name="ime_tap_to_record">Toca para grabar</string>
+    <string name="ime_tap_to_stop">Toca para detener</string>
+    <string name="ime_listening">Escuchando…</string>
+    <string name="ime_processing">Procesando…</string>
+    <string name="ime_refining">Refinando…</string>
+    <string name="ime_ai_fix_toggle">AI Fix</string>
+    <string name="ime_no_mic_permission">Sin permiso de micrófono: concédelo en la app</string>
+    <string name="ime_open_app_for_permission">Abre la app para conceder el permiso</string>
+    <string name="ime_error_loading_keyboard">Error al cargar el teclado: %1$s</string>
+    <string name="ime_cd_switch_keyboard">Cambiar de teclado</string>
+    <string name="ime_cd_space">Espacio</string>
+    <string name="ime_cd_enter">Intro</string>
+    <string name="ime_cd_backspace">Retroceso</string>
+    <string name="rec_mic_permission_required">Se requiere permiso de micrófono.\nConcédelo en la app principal.</string>
+    <string name="rec_listening_tap_stop">Escuchando… (toca para detener)</string>
+    <string name="rec_processing">Procesando…</string>
+    <string name="rec_refining">Refinando…</string>
+    <string name="file_preparing">Preparando…</string>
+    <string name="file_loading_model">Cargando modelo…</string>
+    <string name="file_decoding_audio">Decodificando audio…</string>
+    <string name="file_transcribing">Transcribiendo…</string>
+    <string name="file_refining">Refinando…</string>
+    <string name="file_copied">Copiado al portapapeles</string>
+    <string name="file_copy_to_clipboard">Copiar al portapapeles</string>
+    <string name="file_error_no_audio_received">Error: no se recibió ningún archivo de audio</string>
+    <string name="file_error_no_audio">Error: no hay archivo de audio</string>
+    <string name="file_error_no_speech">Error: no se detectó voz en el archivo de audio</string>
+    <string name="file_error_format">Error: %1$s</string>
+    <string name="subs_grant_overlay_permission">Concede el permiso \'Mostrar sobre otras apps\'</string>
+    <string name="subs_enable_overlay_app_settings">Activa \'Mostrar sobre otras apps\' en los ajustes de la app</string>
+    <string name="subs_enable_overlay_settings">Activa el permiso de superposición en los ajustes</string>
+    <string name="subs_overlay_required">El permiso de superposición es necesario para los subtítulos</string>
+    <string name="subs_screen_capture_denied">Captura de pantalla denegada</string>
+    <string name="subs_waiting_for_audio">Esperando audio…</string>
+    <string name="subs_notification_active">Subtítulos en vivo activos</string>
+    <string name="subs_notification_recording">Grabando audio interno…</string>
+    <string name="subs_notification_stop">Detener</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="ime_cancelled">Transcripción cancelada</string>
+    <string name="file_cancelled">Transcripción cancelada</string>
+    <string name="debug_model_cannot_create_dir">No se pudo crear el directorio de modelos</string>
+    <string name="debug_model_checksum_mismatch">Checksum incorrecto: se esperaba %1$s, se obtuvo %2$s</string>
+    <string name="debug_model_rename_failed">No se pudo renombrar el archivo de modelo descargado</string>
+    <string name="debug_model_http_error">HTTP %1$d</string>
+    <string name="debug_model_unknown_reason">desconocido</string>
+    <string name="bench_no_data_chunk">no hay bloque de datos en %1$s</string>
+    <string name="file_error_too_long">El archivo de audio dura más de 30 minutos. Transcribe un archivo más corto.</string>
+    <string name="file_error_too_large">El archivo de audio es demasiado grande para importar (tamaño máximo 1 GB). Elige un archivo más pequeño.</string>
+
+    <!-- Floating dictation overlay & Accessibility auto-paste -->
+    <string name="floating_bubble_description">Burbuja flotante de dictado por voz</string>
+    <string name="floating_status_idle">Toca la burbuja para hablar</string>
+    <string name="floating_status_listening">Escuchando…</string>
+    <string name="floating_status_transcribing">Transcribiendo…</string>
+    <string name="floating_status_ready">Listo</string>
+    <string name="floating_action_cancel">Cancelar</string>
+    <string name="floating_action_insert">Insertar</string>
+    <string name="floating_ai_fix_toggle">AI Fix</string>
+    <string name="floating_overlay_permission_title">Permiso de superposición requerido</string>
+    <string name="floating_overlay_permission_msg">Concede el permiso de Mostrar sobre otras aplicaciones para usar la burbuja flotante de dictado.</string>
+    <string name="floating_service_name">Superposición de dictado flotante</string>
+    <string name="floating_service_description">Burbuja flotante para dictado de voz rápido y panel superpuesto.</string>
+    <string name="floating_notification_stop">Detener</string>
+    <string name="floating_stopped">Dictado flotante detenido</string>
+    <string name="floating_need_mic_body">Concede permiso de micrófono para usar la burbuja flotante de dictado.</string>
+    <string name="floating_start_failed_body">No se pudo iniciar la burbuja flotante. Comprueba los permisos de superposición y micrófono.</string>
+    <string name="accessibility_service_name">Inserción de dictado de Aura Transcribe</string>
+    <string name="accessibility_service_description">Inserta en el campo que estabas editando el texto que acabas de dictar. Solo lee ese campo, no guarda nada y es opcional: sin él, el dictado se copia al portapapeles.</string>
+    <string name="a11y_disclosure_title">¿Insertar el texto dictado automáticamente?</string>
+    <string name="a11y_disclosure_intro">Aura Transcribe puede escribir lo que dictas directamente en el campo de texto que estás usando en otra aplicación. Android solo lo permite con acceso de accesibilidad, así que decides tú: esto es exactamente lo que implica, antes de que se te pida.</string>
+    <string name="a11y_disclosure_what_title">Qué puede ver la aplicación</string>
+    <string name="a11y_disclosure_what_body">Mientras está activado, el servicio puede leer el campo de texto donde tienes el cursor, para insertar ahí tu dictado y colocar bien el cursor. No lee otras partes de la pantalla, no explora tus aplicaciones y no recopila ni guarda lo que haya en el campo.</string>
+    <string name="a11y_disclosure_why_title">Por qué es opcional</string>
+    <string name="a11y_disclosure_why_body">Todo lo demás funciona sin esto. Cuando el acceso de accesibilidad está desactivado, tu dictado se copia al portapapeles y lo pegas tú: un paso más, ningún permiso más.</string>
+    <string name="a11y_disclosure_control_title">Tú mantienes el control</string>
+    <string name="a11y_disclosure_control_body">Nada se activa hasta que lo actives en los ajustes de Android, y puedes revocarlo ahí en cualquier momento, o desactivando la burbuja flotante dentro de Aura Transcribe.</string>
+    <string name="a11y_disclosure_consent">Continuar a los ajustes de accesibilidad</string>
+    <string name="a11y_disclosure_decline">Ahora no</string>
+    <string name="a11y_disclosure_no_settings">No se pudieron abrir los ajustes de Android en este dispositivo.</string>
+    <string name="a11y_copied_to_clipboard">Copiado al portapapeles: pégalo donde quieras</string>
+    <string name="accessibility_paste_failed">Error al pegar texto</string>
+    <string name="floating_card_title">Dictado Flotante y Accesibilidad</string>
+    <string name="floating_card_subtitle">Burbuja flotante tipo Whisperflow con pegado automático por Accesibilidad.</string>
+    <string name="btn_overlay_permission">Permiso de superposición</string>
+    <string name="btn_accessibility_permission">Permiso de accesibilidad</string>
+
+    <!-- Entrada de audio y micrófonos -->
+    <string name="section_audio_input">Entrada de audio y micrófonos</string>
+    <string name="desc_audio_input">Selecciona la fuente de micrófono preferida para dictar (auriculares Bluetooth, micrófonos USB o micrófono interno).</string>
+    <string name="mic_mode_auto">Automático (Bluetooth / USB si está conectado)</string>
+    <string name="mic_mode_bluetooth">Preferir micrófono Bluetooth</string>
+    <string name="mic_mode_builtin">Solo micrófono interno del teléfono</string>
+    <string name="mic_connected_label">Dispositivos detectados:</string>
+
+    <!-- Microphone Diagnostics & Sound Test -->
+    <string name="mic_test_title">Diagnóstico y prueba de micrófono</string>
+    <string name="mic_test_desc">Prueba los niveles de entrada de audio en tiempo real y verifica el dispositivo de grabación activo.</string>
+    <string name="mic_test_btn_start">Iniciar prueba de sonido</string>
+    <string name="mic_test_btn_stop">Detener prueba de sonido</string>
+    <string name="mic_test_active_device">Dispositivo activo: %1$s</string>
+    <string name="mic_active_builtin">Micrófono interno</string>
+
+    <!-- App UI language (auto = follow system) -->
+    <string name="setting_language">Idioma de la app</string>
+    <string name="language_auto">Automático (sistema)</string>
+</resources>

@@ -1,0 +1,67 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# IDE
+/.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Editor swap files
+*.kate-swp
+*~
+*.swp
+
+# Android
+local.properties
+
+# Keystore (sensitive)
+release.keystore
+
+# Rust build output
+target/
+**/target/
+
+# Native libs (built by cargo-ndk at build time)
+app/src/main/jniLibs/
+
+# Model files (downloaded at build time)
+*.gguf
+
+# Python bytecode (created when a scripts/*.py self-test imports its module)
+__pycache__/
+*.pyc
+
+# Build outputs
+*.apk
+*.aab
+*.apks
+*.idsig
+
+# macOS
+.DS_Store
+._*
+
+# Session scratch (typed by hand at the start of an IA session,
+# regenerated next session — never part of the repo).
+/PLAN.md
+/prompt.txt
+/new_pp_prompt.md
+benchmark_results.json
+# Agent context & AI scratch directories (hidden, local-only)
+.ai_context/
+.agents/
+.omg/
+.opencode/
+*.lock
+!Cargo.lock
+!crates/**/Cargo.lock
+
+# Benchmark fixtures and run outputs
+benchmark/models/
+benchmark/corpus/audio/
+benchmark/results/

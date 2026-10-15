@@ -1,0 +1,807 @@
+package dev.notune.transcribe;
+
+import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ServiceInfo;
+import android.graphics.PixelFormat;
+import android.media.AudioAttributes;
+import android.media.AudioFormat;
+import android.media.AudioPlaybackCaptureConfiguration;
+import android.media.AudioRecord;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
+import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.text.StaticLayout;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import androidx.core.content.IntentCompat;
+
+import java.util.ArrayDeque;
+
+public class LiveSubtitleService extends Service {
+    private static final String TAG = "LiveSubtitleService";
+    public static final String ACTION_START = "dev.notune.transcribe.START_SUBTITLES";
+    public static final String ACTION_STOP = "dev.notune.transcribe.STOP_SUBTITLES";
+    private static final String CHANNEL_ID = "LiveSubtitlesChannel";
+    private static final int NOTIFICATION_ID = 12345;
+
+    static {
+        try {
+            System.loadLibrary("c++_shared");
+            System.loadLibrary("android_transcribe_app");
+        } catch (Throwable t) {
+            try {
+                Log.e(TAG, "Failed to load native libraries", t);
+            } catch (Throwable ignored) {}
+        }
+    }
+
+    private MediaProjectionManager mProjectionManager;
+    private MediaProjection mMediaProjection;
+    private AudioRecord mAudioRecord;
+    private Thread mAudioThread;
+    private boolean isRecording = false;
+
+    private WindowManager mWindowManager;
+    private View mOverlayView;
+    private TextView mSubtitleText;
+    private Handler mMainHandler;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mMainHandler = new Handler(Looper.getMainLooper());
+        mProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        createNotificationChannel();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null) return START_NOT_STICKY;
+
+        if (ACTION_START.equals(intent.getAction())) {
+            int code = intent.getIntExtra("code", 0);
+            Intent data = IntentCompat.getParcelableExtra(intent, "data", Intent.class);
+
+            if (code == 0 || data == null) {
+                Log.e(TAG, "Missing or invalid extras for media projection");
+                stopSelf();
+                return START_NOT_STICKY;
+            }
+
+            // ORDER MATTERS (Android 14 / API 34+). The documented contract is:
+            //
+            //   1. the Activity calls MediaProjectionManager.createScreenCaptureIntent()
+            //      and the user grants the projection (done in LiveSubtitleActivity);
+            //   2. the service starts its foreground service with the
+            //      `mediaProjection` type;
+            //   3. only then may MediaProjectionManager.getMediaProjection() be
+            //      called.
+            //
+            // See "Media projection" on
+            // developer.android.com/about/versions/14/changes/fgs-types-required:
+            // "After you have created the foreground service, you can call
+            // MediaProjectionManager.getMediaProjection()." Calling
+            // getMediaProjection() while no mediaProjection foreground service is
+            // running throws SecurityException("Media projections require a
+            // foreground service of type
+            // ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION"), which is the
+            // exact failure the previous ordering produced.
+            try {
+                Notification notification = createNotification();
+                if (Build.VERSION.SDK_INT >= 29) {
+                    startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION);
+                } else {
+                    startForeground(NOTIFICATION_ID, notification);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to start foreground service", e);
+                stopSelf();
+                return START_NOT_STICKY;
+            }
+
+            if (!obtainMediaProjection(code, data)) {
+                // The foreground service is already running, so take it down
+                // explicitly instead of leaving its notification behind.
+                try {
+                    stopForeground(STOP_FOREGROUND_REMOVE);
+                } catch (RuntimeException e) {
+                    Log.w(TAG, "Could not stop the foreground service", e);
+                }
+                releaseProjection();
+                stopSelf();
+                return START_NOT_STICKY;
+            }
+
+            startSubtitleSession();
+        } else if (ACTION_STOP.equals(intent.getAction())) {
+            stopSubtitleSession();
+            stopSelf();
+        }
+
+        return START_NOT_STICKY;
+    }
+
+    /**
+     * Obtains the {@link MediaProjection} from the user's consent result.
+     *
+     * <p>Must run <em>after</em> {@link #startForeground(int, Notification, int)}
+     * with {@code FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION}: the documented
+     * contract for the {@code mediaProjection} foreground-service type is
+     * consent (see {@code createScreenCaptureIntent()}) → start the foreground
+     * service → {@code getMediaProjection()}. Calling it earlier throws
+     * {@code SecurityException} because no {@code mediaProjection} foreground
+     * service is running yet.
+     *
+     * @return true when a usable projection is held.
+     */
+    private boolean obtainMediaProjection(int code, Intent data) {
+        if (mMediaProjection != null) return true;
+
+        MediaProjection projection;
+        try {
+            projection = mProjectionManager.getMediaProjection(code, data);
+        } catch (SecurityException e) {
+            // The consent token was already consumed or rejected.
+            Log.e(TAG, "MediaProjection consent rejected", e);
+            return false;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Could not obtain MediaProjection", e);
+            return false;
+        }
+        if (projection == null) {
+            Log.e(TAG, "MediaProjection was null");
+            return false;
+        }
+        mMediaProjection = projection;
+
+        // Stop cleanly if the user revokes the projection from the status bar.
+        mMediaProjection.registerCallback(new MediaProjection.Callback() {
+            @Override
+            public void onStop() {
+                mMainHandler.post(() -> {
+                    stopSubtitleSession();
+                    stopSelf();
+                });
+            }
+        }, mMainHandler);
+        return true;
+    }
+
+    /**
+     * Releases a projection obtained by {@link #obtainMediaProjection} when the
+     * session never reached the point of a full {@link #stopSubtitleSession()}
+     * teardown (e.g. the projection could not be obtained, or startSubtitleSession
+     * bailed out). Never throws.
+     */
+    private void releaseProjection() {
+        if (mMediaProjection != null) {
+            try {
+                mMediaProjection.stop();
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Could not stop MediaProjection", e);
+            }
+            mMediaProjection = null;
+        }
+    }
+
+    private void startSubtitleSession() {
+        if (isRecording) return;
+
+        initNative(this);
+        setupOverlay();
+        // MediaProjection audio capture only exists on Android 10+; on older
+        // devices the whole subtitle surface is unavailable.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startAudioCapture();
+        } else {
+            Log.e(TAG, "Live subtitles require Android 10 (API 29)+");
+            stopSubtitleSession();
+            stopSelf();
+        }
+    }
+
+    private void stopSubtitleSession() {
+        isRecording = false;
+        if (mAudioRecord != null) {
+            // stop() throws IllegalStateException when the AudioRecord was
+            // never initialized/started (e.g. capture failed); a teardown path
+            // must never crash the service (V6).
+            try {
+                if (mAudioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
+                    mAudioRecord.stop();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        if (mAudioThread != null) {
+            try {
+                // Bounded wait: read() unblocks immediately upon audioRecord.stop().
+                mAudioThread.join(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            mAudioThread = null;
+        }
+        if (mAudioRecord != null) {
+            try {
+                mAudioRecord.release();
+            } catch (Exception ignored) {
+            }
+            mAudioRecord = null;
+        }
+        if (mMediaProjection != null) {
+            try {
+                mMediaProjection.stop();
+            } catch (Exception ignored) {
+            }
+            mMediaProjection = null;
+        }
+        // Tear down the translator and invalidate its in-flight results so no
+        // late callback can touch the next session's overlay (P0.2-style).
+        mTranslationGeneration++;
+        mTranslationQueue.clear();
+        mCaptionSegments.clear();
+        mTranslationBusy = false;
+        mLastPartial = "";
+        mTranslationUnavailableNotified = false;
+        if (mTranslator != null) {
+            mTranslator.cancelAll();
+            mTranslator = null;
+        }
+        removeOverlay();
+        cleanupNative();
+    }
+
+    private void setupOverlay() {
+        mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        // Root = null on purpose (lint's InflateParams suggestion does not apply):
+        // the subtitle bar is attached by WindowManager, not by a ViewGroup, and
+        // its WindowManager.LayoutParams are constructed in removeOverlay()'s
+        // counterpart below.
+        mOverlayView = inflater.inflate(R.layout.service_subtitle, null);
+
+        mMaxLines = SubtitlePrefs.getMaxLines(this);
+        mSubtitleText = mOverlayView.findViewById(R.id.subs_text);
+        mSubtitleText.setText(getString(R.string.subs_waiting_for_audio));
+
+        // New session: reset the transcript window so text from a previous
+        // session never leaks into the fresh overlay (P0.2).
+        mCommittedText.setLength(0);
+        mCommittedBase = 0;
+        mWindowStartAbs = 0;
+        mDisplayedEndAbs = 0;
+
+        // Translation session init (fork addition). "Auto" keeps the original
+        // language and the classic pipeline; an explicit target arms the
+        // on-device translator for this session only.
+        mTranslationTarget = SubtitlePrefs.getTranslationTarget(this);
+        mModelLanguage = MarkerFileHelper.readString(this, "model_language", "auto");
+        mTranslationMode = !SubtitleTranslationTargets.AUTO.equals(mTranslationTarget);
+        mTranslator = mTranslationMode ? new OnDeviceSubtitleTranslator() : null;
+        mTranslationGeneration++;
+        mTranslationQueue.clear();
+        mCaptionSegments.clear();
+        mTranslationBusy = false;
+        mLastPartial = "";
+        mTranslationUnavailableNotified = false;
+        
+        View closeBtn = mOverlayView.findViewById(R.id.btn_close_subs);
+        closeBtn.setOnClickListener(v -> {
+            Intent stopIntent = new Intent(this, LiveSubtitleService.class);
+            stopIntent.setAction(ACTION_STOP);
+            startService(stopIntent);
+        });
+        
+        int layoutFlag = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                layoutFlag,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | 
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+                PixelFormat.TRANSLUCENT);
+
+        params.gravity = Gravity.BOTTOM;
+        params.y = SubtitlePrefs.getOverlayY(this);
+
+        mWindowManager.addView(mOverlayView, params);
+        makeOverlayDraggable(params);
+    }
+
+    /**
+     * Lets the user drag the overlay vertically; the position is persisted
+     * and restored on the next session. The listener sits on the overlay
+     * root, so the close button (which consumes its own touches) keeps
+     * working. With {@link Gravity#BOTTOM}, {@code params.y} is the offset
+     * above the bottom edge, so it grows as the finger moves up.
+     */
+    private void makeOverlayDraggable(WindowManager.LayoutParams params) {
+        mOverlayView.setOnTouchListener(new View.OnTouchListener() {
+            private float downRawY;
+            private int downParamsY;
+
+            @Override
+            public boolean onTouch(View v, android.view.MotionEvent event) {
+                switch (event.getAction()) {
+                    case android.view.MotionEvent.ACTION_DOWN:
+                        downRawY = event.getRawY();
+                        downParamsY = params.y;
+                        return true;
+                    case android.view.MotionEvent.ACTION_MOVE: {
+                        int maxY = getResources().getDisplayMetrics().heightPixels
+                                - mOverlayView.getHeight();
+                        params.y = Math.max(0, Math.min(maxY,
+                                downParamsY + (int) (downRawY - event.getRawY())));
+                        if (mOverlayView != null) {
+                            mWindowManager.updateViewLayout(mOverlayView, params);
+                        }
+                        return true;
+                    }
+                    case android.view.MotionEvent.ACTION_UP:
+                        // Ends a drag, but is also a plain tap on the overlay.
+                        // Surface it as a click so accessibility services get
+                        // the event a standard click would have produced
+                        // (ClickableViewAccessibility).
+                        v.performClick();
+                        SubtitlePrefs.setOverlayY(LiveSubtitleService.this, params.y);
+                        return true;
+                    case android.view.MotionEvent.ACTION_CANCEL:
+                        SubtitlePrefs.setOverlayY(LiveSubtitleService.this, params.y);
+                        return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    private void removeOverlay() {
+        if (mOverlayView != null && mWindowManager != null) {
+            mWindowManager.removeView(mOverlayView);
+            mOverlayView = null;
+        }
+        // Drop the caption view reference too: any late native callback (an
+        // old session's worker that raced cleanup) finds mSubtitleText null
+        // and exits instead of updating a removed overlay (P0.2).
+        mSubtitleText = null;
+    }
+
+    /**
+     * Captures system audio via MediaProjection (Android 10 / API 29+ only).
+     *
+     * Suppressed MissingPermission: this path does NOT require RECORD_AUDIO —
+     * system-audio playback capture is gated by the MediaProjection consent
+     * the user granted in LiveSubtitleActivity, not by the mic permission. The
+     * AudioRecord build/start below is additionally wrapped in try/catch, so a
+     * ROM that enforces RECORD_AUDIO anyway surfaces as a logged error instead
+     * of a crash.
+     */
+    @androidx.annotation.RequiresApi(Build.VERSION_CODES.Q)
+    @SuppressLint("MissingPermission")
+    private void startAudioCapture() {
+        Log.d(TAG, "Starting audio capture. MediaProjection: " + mMediaProjection);
+        if (mMediaProjection == null) {
+            Log.e(TAG, "MediaProjection is null, cannot capture audio");
+            return;
+        }
+
+        AudioPlaybackCaptureConfiguration config = new AudioPlaybackCaptureConfiguration.Builder(mMediaProjection)
+                .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
+                .addMatchingUsage(AudioAttributes.USAGE_GAME)
+                .addMatchingUsage(AudioAttributes.USAGE_UNKNOWN)
+                .build();
+
+        int sampleRate = 16000;
+        int channelConfig = AudioFormat.CHANNEL_IN_MONO;
+        int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
+
+        int minBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
+        int bufferSize = Math.max(minBufferSize, 16000); // 1 second buffer roughly
+
+        AudioFormat format = new AudioFormat.Builder()
+                .setEncoding(audioFormat)
+                .setSampleRate(sampleRate)
+                .setChannelMask(channelConfig)
+                .build();
+
+        try {
+            mAudioRecord = new AudioRecord.Builder()
+                    .setAudioFormat(format)
+                    .setBufferSizeInBytes(bufferSize)
+                    .setAudioPlaybackCaptureConfig(config)
+                    .build();
+
+            if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
+                Log.e(TAG, "AudioRecord failed to initialize");
+                stopSubtitleSession();
+                return;
+            }
+
+            mAudioRecord.startRecording();
+            if (mAudioRecord.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
+                Log.e(TAG, "AudioRecord failed to start recording. State: " + mAudioRecord.getRecordingState());
+                stopSubtitleSession();
+                return;
+            }
+            
+            isRecording = true;
+            Log.d(TAG, "AudioRecord started successfully");
+            
+            mAudioThread = new Thread(this::audioLoop);
+            mAudioThread.start();
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Error starting AudioRecord", e);
+            stopSubtitleSession();
+        }
+    }
+
+    private void audioLoop() {
+        Log.d(TAG, "Starting audio loop");
+        int bufferSize = 1024; // Process in small chunks
+        short[] buffer = new short[bufferSize];
+        float[] floatBuffer = new float[bufferSize];
+        int totalRead = 0;
+
+        while (isRecording) {
+            int read = mAudioRecord.read(buffer, 0, bufferSize);
+            if (read > 0) {
+                totalRead += read;
+                if (BuildConfig.DEBUG && totalRead % (16000 * 5) < read) { // Log approx every 5 seconds of audio
+                    Log.d(TAG, "Reading audio... Total samples: " + totalRead);
+                }
+                
+                // Convert short to float via fast reciprocal multiplication (auto-vectorizable in ART)
+                final float invScale = 1.0f / 32768.0f;
+                for (int i = 0; i < read; i++) {
+                    floatBuffer[i] = buffer[i] * invScale;
+                }
+                pushAudio(floatBuffer, read);
+            } else if (read < 0) {
+                Log.e(TAG, "Audio read error: " + read);
+                isRecording = false;
+                break;
+            }
+        }
+        Log.d(TAG, "Audio loop finished");
+    }
+
+    // Transcript state: finalized text plus the partial hypothesis for the
+    // segment currently being spoken. Partials replace each other; finals are
+    // appended once.
+    private final StringBuilder mCommittedText = new StringBuilder();
+    private static final int MAX_COMMITTED_CHARS = 600;
+    // Absolute offset of mCommittedText[0] within the whole session transcript
+    // (grows when the buffer is trimmed at the front).
+    private long mCommittedBase = 0;
+    // Absolute offset where the caption window starts. Only ever moves
+    // forward — this is what keeps old sentences from sliding back into view
+    // when a hypothesis is revised or a segment finalizes. Positions inside
+    // the partial region drift by at most a few characters when a hypothesis
+    // is revised, which is invisible compared to a window jump.
+    private long mWindowStartAbs = 0;
+    // Line limit for the overlay (0 = unlimited), from SubtitlePrefs.
+    private int mMaxLines = SubtitlePrefs.DEFAULT_MAX_LINES;
+    // Absolute offset of the end of the currently displayed transcript.
+    private long mDisplayedEndAbs = 0;
+
+    // --- Live-subtitle translation (fork addition) -------------------------
+    // When the user picks an explicit translation target, finalized segments
+    // are shown immediately in the original language and re-rendered in the
+    // target language as the ordered on-device translations arrive. All state
+    // below is touched only on the main thread (segment/job bookkeeping inside
+    // the onSubtitleText runnable, translation completions via the same
+    // handler), so no locks are needed.
+    private boolean mTranslationMode = false;
+    private String mTranslationTarget = SubtitleTranslationTargets.AUTO;
+    private String mModelLanguage = "auto";
+    private SubtitleTranslator mTranslator;
+    private final ArrayDeque<CaptionSegment> mCaptionSegments = new ArrayDeque<>();
+    private final ArrayDeque<TranslationJob> mTranslationQueue = new ArrayDeque<>();
+    private boolean mTranslationBusy = false;
+    /** Bumped on every session start/stop; late callbacks with a stale
+     *  generation are dropped (same idea as the Rust worker's generation). */
+    private int mTranslationGeneration = 0;
+    private String mLastPartial = "";
+    /** One-time user notice when the translator falls back to the original
+     *  language (no Play Services / missing pack / engine error). */
+    private boolean mTranslationUnavailableNotified = false;
+    private static final int MAX_CAPTION_SEGMENTS = 24;
+    /** Backlog guard: beyond this, new finals skip translation and stay in
+     *  the original language instead of building an unbounded queue. */
+    private static final int MAX_TRANSLATION_QUEUE = 8;
+
+    /** One caption line: finalized (translated or fallback) or still pending. */
+    private static final class CaptionSegment {
+        String shown;
+        boolean finalText;
+        CaptionSegment(String shown) {
+            this.shown = shown;
+        }
+    }
+
+    /** One queued translation request; carries the session generation. */
+    private static final class TranslationJob {
+        final String text;
+        final int generation;
+        TranslationJob(String text, int generation) {
+            this.text = text;
+            this.generation = generation;
+        }
+    }
+
+    // Called from Rust (worker thread). isFinal=true commits the text;
+    // isFinal=false is a partial hypothesis that replaces the previous one.
+    public void onSubtitleText(String text, boolean isFinal) {
+        mMainHandler.post(() -> {
+            if (mSubtitleText == null) return;
+            if (isFinal) {
+                if (text.isEmpty()) return; // nothing new — leave display alone
+                if (mTranslationMode) {
+                    mLastPartial = "";
+                    onFinalTranslated(text);
+                } else {
+                    if (mCommittedText.length() > 0) mCommittedText.append(' ');
+                    mCommittedText.append(text);
+                    int excess = mCommittedText.length() - MAX_COMMITTED_CHARS;
+                    if (excess > 0) {
+                        mCommittedText.delete(0, excess);
+                        mCommittedBase += excess;
+                    }
+                    updateDisplay("");
+                }
+            } else {
+                if (mTranslationMode) {
+                    mLastPartial = text;
+                    renderTranslatedCaption("");
+                } else {
+                    updateDisplay(text);
+                }
+            }
+        });
+    }
+
+    // --- Translation-mode caption pipeline (fork addition) -----------------
+
+    /** A finalized segment arrives: show it in the original language at once
+     *  and enqueue the on-device translation (unless it is punctuation or the
+     *  queue is already saturated, in which case the original is kept). */
+    private void onFinalTranslated(String text) {
+        CaptionSegment segment = new CaptionSegment(text);
+        mCaptionSegments.addLast(segment);
+        if (isPunctuationOnly(text) || mTranslationQueue.size() >= MAX_TRANSLATION_QUEUE) {
+            segment.finalText = true; // gap markers / overflow: keep original
+        } else {
+            enqueueTranslation(text);
+        }
+        trimCaptionSegments();
+        renderTranslatedCaption("");
+    }
+
+    private void enqueueTranslation(String text) {
+        mTranslationQueue.addLast(new TranslationJob(text, mTranslationGeneration));
+        pumpTranslationQueue();
+    }
+
+    /** Starts the next queued translation; strictly serial (FIFO), so results
+     *  are applied in order and a slow pair never reorders the captions. */
+    private void pumpTranslationQueue() {
+        if (mTranslationBusy || mTranslationQueue.isEmpty() || mTranslator == null) return;
+        mTranslationBusy = true;
+        final TranslationJob job = mTranslationQueue.peek();
+        final String sourceCode = SourceLanguageResolver.resolve(job.text, mModelLanguage);
+        final String targetCode = SubtitleTranslationTargets.mlKitCode(mTranslationTarget);
+        mTranslator.translate(job.text, sourceCode, targetCode, new SubtitleTranslator.Callback() {
+            @Override
+            public void onSuccess(String translated) {
+                mMainHandler.post(() -> applyTranslation(job, translated));
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                // Safe fallback: the original text is always shown.
+                mMainHandler.post(() -> applyTranslation(job, job.text));
+            }
+
+            @Override
+            public void onUnavailable() {
+                // Tell the user once per session that translation fell back to
+                // the original language (no Play Services, missing pack, …).
+                mMainHandler.post(() -> {
+                    if (mTranslationUnavailableNotified) return;
+                    mTranslationUnavailableNotified = true;
+                    Toast.makeText(LiveSubtitleService.this,
+                            R.string.subs_translation_unavailable, Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
+    /** Applies a translation (or its fallback) to the matching pending segment
+     *  and keeps the queue moving. Runs on the main thread. */
+    private void applyTranslation(TranslationJob job, String translated) {
+        mTranslationBusy = false;
+        mTranslationQueue.remove(job);
+        if (job.generation != mTranslationGeneration) return; // stale session
+        // Strict FIFO: the first segment still pending is the one this job
+        // belongs to (punct-only finals are finalized immediately, so they
+        // never create jobs and never shift this correspondence).
+        for (CaptionSegment s : mCaptionSegments) {
+            if (!s.finalText) {
+                s.shown = translated;
+                s.finalText = true;
+                break;
+            }
+        }
+        renderTranslatedCaption("");
+        pumpTranslationQueue();
+    }
+
+    /** Renders the segment list plus the live partial through the same
+     *  last-N-lines window the classic path uses. Pending segments keep their
+     *  original text until their translation lands, so captions never pause. */
+    private void renderTranslatedCaption(String partial) {
+        if (mSubtitleText == null) return;
+        StringBuilder full = new StringBuilder();
+        for (CaptionSegment s : mCaptionSegments) {
+            full.append(s.shown);
+            full.append(' ');
+        }
+        String tail = partial.isEmpty() ? mLastPartial : partial;
+        if (!tail.isEmpty()) full.append(tail);
+        String text = full.toString();
+        if (text.isEmpty()) {
+            mSubtitleText.setText("");
+            return;
+        }
+        String visible = text;
+        if (mMaxLines > 0) {
+            int width = mSubtitleText.getWidth()
+                    - mSubtitleText.getPaddingLeft() - mSubtitleText.getPaddingRight();
+            if (width > 0) {
+                StaticLayout layout = StaticLayout.Builder
+                        .obtain(visible, 0, visible.length(), mSubtitleText.getPaint(), width)
+                        .build();
+                int lineCount = layout.getLineCount();
+                if (lineCount > mMaxLines) {
+                    int cut = layout.getLineStart(lineCount - mMaxLines);
+                    visible = visible.substring(cut);
+                }
+            }
+        }
+        mSubtitleText.setText(visible);
+    }
+
+    /** Caps the stored segment list, never dropping a pending translation. */
+    private void trimCaptionSegments() {
+        while (mCaptionSegments.size() > MAX_CAPTION_SEGMENTS) {
+            CaptionSegment first = mCaptionSegments.peekFirst();
+            if (first != null && !first.finalText) break;
+            mCaptionSegments.removeFirst();
+        }
+    }
+
+    /** True when a finalized segment carries no translatable content (gap
+     *  markers like "…" must not go through the translator). */
+    private static boolean isPunctuationOnly(String text) {
+        String t = text.trim();
+        if (t.isEmpty()) return true;
+        for (int i = 0; i < t.length(); i++) {
+            if (Character.isLetterOrDigit(t.charAt(i))) return false;
+        }
+        return true;
+    }
+
+    /** Renders committed text + partial through the forward-only caption window. */
+    private void updateDisplay(String partial) {
+        String full = partial.isEmpty()
+                ? mCommittedText.toString()
+                : (mCommittedText.length() == 0 ? partial : mCommittedText + " " + partial);
+
+        // A final can end before the partial that was just on screen (the
+        // forced-cut remainder belongs to the next segment, and the final
+        // transcription may stop earlier than the last hypothesis). Redrawing
+        // then would make already-read words vanish and "pop up" again with
+        // the next partial — so only redraw once the transcript reaches at
+        // least as far as what is currently displayed.
+        long fullEndAbs = mCommittedBase + full.length();
+        if (fullEndAbs < mDisplayedEndAbs) return;
+        mDisplayedEndAbs = fullEndAbs;
+
+        if (mMaxLines <= 0) {
+            mSubtitleText.setText(full);
+            return;
+        }
+
+        int rel = (int) Math.max(0, Math.min(mWindowStartAbs - mCommittedBase, full.length()));
+        // Cosmetic: never start the window on the separator space.
+        while (rel < full.length() && full.charAt(rel) == ' ') rel++;
+        String visible = full.substring(rel);
+
+        int width = mSubtitleText.getWidth()
+                - mSubtitleText.getPaddingLeft() - mSubtitleText.getPaddingRight();
+        if (width > 0 && !visible.isEmpty()) {
+            StaticLayout layout = StaticLayout.Builder
+                    .obtain(visible, 0, visible.length(), mSubtitleText.getPaint(), width)
+                    .build();
+            int lineCount = layout.getLineCount();
+            if (lineCount > mMaxLines) {
+                int cut = layout.getLineStart(lineCount - mMaxLines);
+                visible = visible.substring(cut);
+                mWindowStartAbs = mCommittedBase + rel + cut;
+            }
+        }
+        mSubtitleText.setText(visible);
+    }
+
+    private void createNotificationChannel() {
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+                getString(R.string.section_subs), NotificationManager.IMPORTANCE_LOW);
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        if (manager != null) {
+            manager.createNotificationChannel(channel);
+        }
+    }
+
+    private Notification createNotification() {
+        createNotificationChannel();
+
+        Intent stopIntent = new Intent(this, LiveSubtitleService.class);
+        stopIntent.setAction(ACTION_STOP);
+        PendingIntent stopPendingIntent = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        return new Notification.Builder(this, CHANNEL_ID)
+                .setContentTitle(getString(R.string.subs_notification_active))
+                .setContentText(getString(R.string.subs_notification_recording))
+                .setSmallIcon(android.R.drawable.ic_btn_speak_now)
+                .addAction(new Notification.Action.Builder(null,
+                        getString(R.string.subs_notification_stop), stopPendingIntent).build())
+                .build();
+    }
+
+    @Override
+    public void onDestroy() {
+        // Make sure the overlay and capture are torn down even if the service
+        // is killed without an explicit ACTION_STOP.
+        stopSubtitleSession();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onTimeout(int startId, int fgsType) {
+        Log.w(TAG, "Foreground service timeout triggered (type=" + fgsType + ", startId=" + startId + ")");
+        stopSubtitleSession();
+        stopSelf(startId);
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    // Native methods: JNI bridge into the Rust subtitle pipeline (see AGENTS.md S4.3)
+    private native void initNative(LiveSubtitleService service);
+    private native void cleanupNative();
+    private native void pushAudio(float[] data, int length);
+}

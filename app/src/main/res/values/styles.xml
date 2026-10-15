@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Material 3 DayNight base theme.
+
+      Deliberately no colour overrides. Material 3's own tonal scheme is
+      internally consistent across light and dark, and DynamicColors
+      (App.onCreate) replaces it with the user's wallpaper palette on
+      Android 12+. The previous theme overrode only colorPrimary/colorOnPrimary
+      with a brand blue, which left every derived role (container, on-container,
+      inverse, …) on the M3 baseline — a half-branded palette whose containers
+      did not match the primary. Using the scheme as designed is what "respect
+      Dynamic Color" actually means.
+
+      System-bar colour is likewise not set here: android:statusBarColor is a
+      no-op from API 35 (edge-to-edge is enforced), the bars are made transparent
+      by EdgeToEdge.enable() in every Activity, and the light/dark icon
+      appearance is provided by the Material 3 DayNight theme itself.
+    -->
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <!-- Voice-input popup (RecognizeActivity): a translucent window so the
+         calling app stays visible (and keeps its UI state) behind the compact
+         bottom panel, instead of a full-screen takeover. -->
+    <style name="AppTheme.VoicePanel" parent="AppTheme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.InputMethod</item>
+        <item name="android:windowSoftInputMode">stateUnchanged</item>
+    </style>
+
+    <!--
+      Material 3 Shape Appearance Scales (matching tokens).
+    -->
+    <style name="ShapeAppearance.M3.Corner.None" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_shape_corner_none</item>
+    </style>
+    <style name="ShapeAppearance.M3.Corner.ExtraSmall" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_shape_corner_extra_small</item>
+    </style>
+    <style name="ShapeAppearance.M3.Corner.Small" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_shape_corner_small</item>
+    </style>
+    <style name="ShapeAppearance.M3.Corner.Medium" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_shape_corner_medium</item>
+    </style>
+    <style name="ShapeAppearance.M3.Corner.Large" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_shape_corner_large</item>
+    </style>
+    <style name="ShapeAppearance.M3.Corner.LargeIncreased" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_shape_corner_large_increased</item>
+    </style>
+    <style name="ShapeAppearance.M3.Corner.ExtraLarge" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_shape_corner_extra_large</item>
+    </style>
+    <style name="ShapeAppearance.M3.Corner.ExtraLargeIncreased" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_shape_corner_extra_large_increased</item>
+    </style>
+    <style name="ShapeAppearance.M3.Corner.ExtraExtraLarge" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_shape_corner_extra_extra_large</item>
+    </style>
+    <style name="ShapeAppearance.M3.Corner.Full" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_shape_corner_full</item>
+    </style>
+
+    <!--
+      Material 3 Expressive Typography: Emphasized styles.
+    -->
+    <style name="TextAppearance.M3.Emphasized.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.M3.Emphasized.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.M3.Emphasized.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.M3.Emphasized.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.M3.Emphasized.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.M3.Emphasized.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>
