@@ -1,14 +1,9 @@
-name: Build Android App
+name: Build Debug APK
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [ "main" ]
   workflow_dispatch:
-
-# Least privilege by default; only the publishing job asks for more.
-permissions:
-  contents: read
 
 jobs:
   validate:
