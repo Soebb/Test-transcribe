@@ -38,6 +38,22 @@ public final class SourceLanguageResolver {
     private SourceLanguageResolver() {}
 
     /** Resolves the ML Kit source code for a segment. */
+    public static final String UNDETERMINED = "und";
+
+    /**
+     * Every language ML Kit on-device translation supports (the values of the
+     * {@code TranslateLanguage} constants). Kept here as plain strings so this
+     * class stays a pure-JVM unit-testable helper.
+     */
+    static final Set<String> MLKIT_LANGUAGES = Collections.unmodifiableSet(new HashSet<>(
+            Arrays.asList(
+                    "af", "ar", "be", "bg", "bn", "ca", "cs", "cy", "da", "de",
+                    "el", "en", "eo", "es", "et", "fa", "fi", "fr", "ga", "gl",
+                    "gu", "he", "hi", "hr", "ht", "hu", "id", "is", "it", "ja",
+                    "ka", "kn", "ko", "lt", "lv", "mk", "mr", "ms", "mt", "nl",
+                    "no", "pl", "pt", "ro", "ru", "sk", "sl", "sq", "sv", "sw",
+                    "ta", "te", "th", "tl", "tr", "uk", "ur", "vi", "zh")));
+
     public static String resolve(String text, String modelLanguageTag) {
         String fromModel = primaryCode(modelLanguageTag);
         if (fromModel != null) return fromModel;
