@@ -143,4 +143,83 @@ public class SourceLanguageResolverTest {
     public void primaryCodeNullForUnsupported() {
         assertNull(SourceLanguageResolver.primaryCode("xx-XX"));
     }
+        @Test
+    public void primaryCodeNullForUnsupported() {
+        assertNull(SourceLanguageResolver.primaryCode("xx-XX"));
+    } →     @Test
+    public void primaryCodeNullForUnsupported() {
+        assertNull(SourceLanguageResolver.primaryCode("xx-XX"));
+    }
+
+    @Test
+    public void primaryCodeCoversEveryTranslatableModelsScreenLanguage() {
+        // Languages the Models screen offers that ML Kit can translate; these
+        // used to return null, so a fixed source like Dutch never translated.
+        String[] tags = {"bg-BG", "hr-HR", "cs-CZ", "da-DK", "nl-NL", "en-GB",
+                "et-EE", "fi-FI", "el-GR", "hu-HU", "lv-LV", "lt-LT", "mt-MT",
+                "pl-PL", "pt-BR", "ro-RO", "sk-SK", "sl-SI", "sv-SE", "uk-UA",
+                "ar-SA", "hi-IN", "tr-TR", "fa-IR"};
+        for (String tag : tags) {
+            String expected = tag.substring(0, 2);
+            assertEquals(tag, expected, SourceLanguageResolver.primaryCode(tag));
+        }
+    }
+
+    @Test
+    public void primaryCodeFoldsLegacyAliases() {
+        assertEquals("he", SourceLanguageResolver.primaryCode("iw-IL"));
+        assertEquals("id", SourceLanguageResolver.primaryCode("in-ID"));
+        assertEquals("no", SourceLanguageResolver.primaryCode("nb-NO"));
+    }
+
+    // --- Language-ID result mapping -----------------------------------------
+    @Test
+    public void identifiedCodeAcceptsSupportedLanguages() {
+        assertEquals("en", SourceLanguageResolver.identifiedCode("en"));
+        assertEquals("fa", SourceLanguageResolver.identifiedCode("fa"));
+        assertEquals("zh", SourceLanguageResolver.identifiedCode("zh"));
+    }
+
+    @Test
+    public void identifiedCodeRejectsUndeterminedRomanizedAndUnsupported() {
+        assertNull(SourceLanguageResolver.identifiedCode("und"));
+        assertNull(SourceLanguageResolver.identifiedCode(""));
+        assertNull(SourceLanguageResolver.identifiedCode(null));
+        assertNull(SourceLanguageResolver.identifiedCode("ja-Latn"));
+        assertNull(SourceLanguageResolver.identifiedCode("hi-Latn"));
+        assertNull(SourceLanguageResolver.identifiedCode("xx"));
+    }
+
+    // --- pickSource (auto-detect order) -------------------------------------
+    @Test
+    public void plainEnglishIsTranslatableWhenLanguageIdNamesIt() {
+        // The original bug: plain English resolved to null and was never
+        // translated. Language ID now names it.
+        assertEquals("en", SourceLanguageResolver.pickSource(
+                "en", "this is plain english text", null));
+    }
+
+    @Test
+    public void languageIdBeatsTheDiacriticHeuristic() {
+        // "você" carries ê, which the heuristic scores as French.
+        assertEquals("fr", SourceLanguageResolver.detectFromText("você"));
+        assertEquals("pt", SourceLanguageResolver.pickSource("pt", "você", null));
+    }
+
+    @Test
+    public void undeterminedFallsBackToHeuristic() {
+        assertEquals("es", SourceLanguageResolver.pickSource("und", "mañana niño", null));
+        assertEquals("ru", SourceLanguageResolver.pickSource(null, "Сегодня", null));
+    }
+
+    @Test
+    public void undeterminedShortSegmentReusesSessionLanguage() {
+        assertEquals("en", SourceLanguageResolver.pickSource("und", "OK", "en"));
+    }
+
+    @Test
+    public void nothingKnownKeepsOriginal() {
+        assertNull(SourceLanguageResolver.pickSource("und", "OK", null));
+        assertNull(SourceLanguageResolver.pickSource(null, "…", null));
+    }
 }
