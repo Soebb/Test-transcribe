@@ -90,13 +90,32 @@ public final class OnDeviceSubtitleTranslator implements SubtitleTranslator {
     @Override
     public void translate(String sourceText, String sourceLanguage, String targetLanguage,
                           Callback callback) {
-        if (sourceText == null || sourceText.isEmpty()) {
+        if (sourceText == null || sourceText.isEmpty() || targetLanguage == null) {
+
             callback.onSuccess(sourceText);
             return;
         }
-        if (sourceLanguage == null || targetLanguage == null
-                || sourceLanguage.equals(targetLanguage)) {
-            // Nothing translatable to do — same language is not an outage.
+        if (sourceLanguage != null) {
+            // Fixed source (model_language set in the Models screen).
+            translateResolved(sourceText, sourceLanguage, targetLanguage, callback);
+            return;
+        }
+        identifySource(sourceText, detected -> {
+            if (detected == null) {
+                // Language could not be determined: keep the original text.
+                // This is not an environment outage, so no user notice.
+                callback.onSuccess(sourceText);
+                return;
+            }
+            translateResolved(sourceText, detected, targetLanguage, callback);
+        });
+    }
+
+    /** Translates once both languages are known. */
+    private void translateResolved(String sourceText, String sourceLanguage,
+                                   String targetLanguage, Callback callback) {
+        if (sourceLanguage.equals(targetLanguage)) {
+
             callback.onSuccess(sourceText);
             return;
         }
