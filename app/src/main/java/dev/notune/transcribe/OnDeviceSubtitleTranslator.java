@@ -158,6 +158,59 @@ public final class OnDeviceSubtitleTranslator implements SubtitleTranslator {
         }
     }
 
+    private void identifySource(String text, SourceSink sink) {
+        final LanguageIdentifier identifier = getLanguageIdentifier();
+        if (identifier == null) {
+            sink.onSource(rememberSource(
+                    SourceLanguageResolver.pickSource(null, text, sessionSource())));
+            return;
+        }
+        try {
+            identifier.identifyLanguage(text)
+                    .addOnSuccessListener(tag -> {
+                        String picked = SourceLanguageResolver.pickSource(
+                                tag, text, sessionSource());
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Language ID: '" + tag + "' -> source " + picked);
+                        }
+                        sink.onSource(rememberSource(picked));
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Language identification failed; using script detection", e);
+                        sink.onSource(rememberSource(
+                                SourceLanguageResolver.pickSource(null, text, sessionSource())));
+                    });
+        } catch (Throwable t) {
+            Log.w(TAG, "Language identification threw; using script detection", t);
+            sink.onSource(rememberSource(
+                    SourceLanguageResolver.pickSource(null, text, sessionSource())));
+        }
+    }
+
+    /** Returns the cached identifier, or null when ML Kit Language ID is unusable. */
+    private synchronized LanguageIdentifier getLanguageIdentifier() {
+        if (languageIdentifier != null || languageIdUnavailable) return languageIdentifier;
+        try {
+            languageIdentifier = LanguageIdentification.getClient();
+        } catch (Throwable t) {
+            languageIdUnavailable = true;
+            Log.w(TAG, "ML Kit language identification unavailable; "
+                    + "falling back to script detection", t);
+        }
+        return languageIdentifier;
+    }
+
+    private synchronized String sessionSource() {
+        return sessionSourceLanguage;
+    }
+
+    /** Remembers a supported detection as the session language; returns it. */
+    private synchronized String rememberSource(String code) {
+        String supported = languageConstant(code);
+        if (supported != null) sessionSourceLanguage = supported;
+        return supported;
+    }
+
     /** Returns the cached/created translator, or null after delivering the fallback. */
     private Translator getOrCreateTranslator(String key, String sourceText, Callback callback) {
         synchronized (this) {
@@ -228,6 +281,15 @@ public final class OnDeviceSubtitleTranslator implements SubtitleTranslator {
             translators.clear();
             downloaded.clear();
             failed.clear();
+            if (languageIdentifier != null) {
+                try {
+                    languageIdentifier.close();
+                } catch (Throwable ignored) {
+                }
+                languageIdentifier = null;
+            }
+            languageIdUnavailable = false;
+            sessionSourceLanguage = null;
         }
     }
 }
