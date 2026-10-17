@@ -13,8 +13,9 @@ package dev.notune.transcribe;
  *       requests and applies results on the main thread in strict FIFO order,
  *       so slow or failing translations never reorder captions.</li>
  *   <li>{@code sourceLanguage}/{@code targetLanguage} are ML Kit language
- *       codes; either may be {@code null}, in which case the implementation
- *       must fall back to the source text.</li>
+ *       codes. A {@code null} source means "auto-detect from the text" (the
+ *       implementation keeps the source text if it cannot tell); a
+ *       {@code null} target means no translation (source text).</li>
  *   <li>Never throw: route every failure through
  *       {@link Callback#onFailure(Throwable)} (or the source-text fallback).</li>
  * </ul>
