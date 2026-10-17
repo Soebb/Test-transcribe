@@ -335,7 +335,7 @@ dependencies {
     // afterwards. On devices without Play Services the translator falls back
     // to showing the original subtitle text (see OnDeviceSubtitleTranslator).
     implementation(libs.mlkit.translate)
-    implementation(libs.mlkit.language-id)
+    implementation(libs.mlkit.language.id)
     // One-time compatibility migration for API keys saved by v0.1.19–v0.1.21
     // in EncryptedSharedPreferences. New writes go through the encrypted
     // SecureCredentialStore (AES-256-GCM + AndroidKeyStore); this dependency is
