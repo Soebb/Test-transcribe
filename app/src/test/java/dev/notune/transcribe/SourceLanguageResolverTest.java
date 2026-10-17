@@ -143,13 +143,6 @@ public class SourceLanguageResolverTest {
     public void primaryCodeNullForUnsupported() {
         assertNull(SourceLanguageResolver.primaryCode("xx-XX"));
     }
-        @Test
-    public void primaryCodeNullForUnsupported() {
-        assertNull(SourceLanguageResolver.primaryCode("xx-XX"));
-    } →     @Test
-    public void primaryCodeNullForUnsupported() {
-        assertNull(SourceLanguageResolver.primaryCode("xx-XX"));
-    }
 
     @Test
     public void primaryCodeCoversEveryTranslatableModelsScreenLanguage() {
