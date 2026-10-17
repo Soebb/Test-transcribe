@@ -2,6 +2,8 @@ package dev.notune.transcribe;
 
 import android.util.Log;
 
+import com.google.mlkit.nl.languageid.LanguageIdentification;
+import com.google.mlkit.nl.languageid.LanguageIdentifier;
 import com.google.mlkit.nl.translate.TranslateLanguage;
 import com.google.mlkit.nl.translate.Translation;
 import com.google.mlkit.nl.translate.Translator;
@@ -9,6 +11,7 @@ import com.google.mlkit.nl.translate.TranslatorOptions;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,21 +42,25 @@ public final class OnDeviceSubtitleTranslator implements SubtitleTranslator {
     private boolean available = false;
 
     /** Maps an ML Kit language code to its {@link TranslateLanguage} constant. */
+    private LanguageIdentifier languageIdentifier;
+    private boolean languageIdUnavailable = false;
+    /** Last source language confidently detected in this session. */
+    private String sessionSourceLanguage;
+
+    /** Receives the resolved source language (null = unknown, keep original). */
+    private interface SourceSink {
+        void onSource(String sourceLanguage);
+    }
     private static String languageConstant(String code) {
         if (code == null) return null;
-        switch (code) {
-            case "en": return TranslateLanguage.ENGLISH;
-            case "es": return TranslateLanguage.SPANISH;
-            case "fr": return TranslateLanguage.FRENCH;
-            case "de": return TranslateLanguage.GERMAN;
-            case "it": return TranslateLanguage.ITALIAN;
-            case "pt": return TranslateLanguage.PORTUGUESE;
-            case "ru": return TranslateLanguage.RUSSIAN;
-            case "fa": return TranslateLanguage.PERSIAN;
-            case "zh": return TranslateLanguage.CHINESE;
-            case "ja": return TranslateLanguage.JAPANESE;
-            case "ko": return TranslateLanguage.KOREAN;
-            default: return null;
+        try {
+            List<String> all = TranslateLanguage.getAllLanguages();
+            if (all.contains(code)) return code;
+            // Legacy aliases (iw/in/nb) and region-qualified tags.
+            String mapped = TranslateLanguage.fromLanguageTag(code);
+            return (mapped != null && all.contains(mapped)) ? mapped : null;
+        } catch (Throwable t) {
+            return null;
         }
     }
 
