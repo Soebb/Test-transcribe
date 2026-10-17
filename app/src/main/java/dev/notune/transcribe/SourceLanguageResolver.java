@@ -1,5 +1,11 @@
 package dev.notune.transcribe;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+
 /**
  * Resolves the <em>source</em> language of a finalized subtitle segment so the
  * on-device translator knows what to translate from. The live-subtitle path
