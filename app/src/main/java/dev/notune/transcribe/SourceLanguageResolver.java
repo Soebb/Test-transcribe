@@ -65,15 +65,58 @@ public final class SourceLanguageResolver {
      * for auto/blank/unsupported tags (falls through to script detection).
      */
     public static String primaryCode(String tag) {
-        String primary = SubtitleTranslationTargets.primaryTag(tag);
+        return toMlKitCode(SubtitleTranslationTargets.primaryTag(tag));
+    }
+
+    /**
+     * Maps an ML Kit Language Identification result to a translatable code.
+     * {@code null} for {@code "und"}, blank, unsupported languages, and
+     * romanized variants such as {@code "ja-Latn"} / {@code "hi-Latn"} (that
+     * text is not in the language's own script, so translating it as that
+     * language would produce garbage).
+     */
+    public static String identifiedCode(String identifiedTag) {
+        if (identifiedTag == null) return null;
+        String t = identifiedTag.trim();
+        if (t.isEmpty() || t.equalsIgnoreCase(UNDETERMINED)) return null;
+        if (t.toLowerCase(Locale.ROOT).endsWith("-latn")) return null;
+        return toMlKitCode(SubtitleTranslationTargets.primaryTag(t));
+    }
+
+    /**
+     * Picks the source language of one segment when no fixed model language
+     * is set. Order of precedence:
+     * <ol>
+     *   <li>ML Kit Language Identification ({@code identifiedTag}).</li>
+     *   <li>Script/diacritic heuristic ({@link #detectFromText(String)}),
+     *       for when identification is unavailable or undetermined.</li>
+     *   <li>{@code sessionLanguage}: the last language confidently detected
+     *       in this captioning session. Very short segments ("OK.", "Yeah")
+     *       are often undetermined, and a video rarely switches language
+     *       between two lines.</li>
+     *   <li>{@code null}: keep the original text.</li>
+     * </ol>
+     */
+    public static String pickSource(String identifiedTag, String text, String sessionLanguage) {
+        String identified = identifiedCode(identifiedTag);
+        if (identified != null) return identified;
+        String heuristic = detectFromText(text);
+        if (heuristic != null) return heuristic;
+        return toMlKitCode(sessionLanguage);
+    }
+
+    /** Folds legacy aliases and keeps only languages ML Kit can translate. */
+    static String toMlKitCode(String primary) {
         if (primary == null) return null;
-        switch (primary) {
-            case "en": case "es": case "fr": case "de": case "it": case "pt":
-            case "ru": case "zh": case "ja": case "ko":
-                return primary;
-            default:
-                return null;
+        String p = primary.trim().toLowerCase(Locale.ROOT);
+        switch (p) {
+            case "iw": p = "he"; break;
+            case "in": p = "id"; break;
+            case "nb": case "nn": p = "no"; break;
+            case "fil": p = "tl"; break;
+            default: break;
         }
+        return MLKIT_LANGUAGES.contains(p) ? p : null;
     }
 
     /**
