@@ -610,7 +610,12 @@ public class LiveSubtitleService extends Service {
         if (mTranslationBusy || mTranslationQueue.isEmpty() || mTranslator == null) return;
         mTranslationBusy = true;
         final TranslationJob job = mTranslationQueue.peek();
-        final String sourceCode = SourceLanguageResolver.resolve(job.text, mModelLanguage);
+        // A fixed model_language wins; otherwise pass null so the translator
+        // auto-detects the source (ML Kit Language ID → script heuristic →
+        // session language). Resolving here with the script heuristic alone
+        // returned null for plain Latin-script text such as English, which
+        // made every such segment silently stay untranslated.
+        final String sourceCode = SourceLanguageResolver.primaryCode(mModelLanguage);
         final String targetCode = SubtitleTranslationTargets.mlKitCode(mTranslationTarget);
         mTranslator.translate(job.text, sourceCode, targetCode, new SubtitleTranslator.Callback() {
             @Override
